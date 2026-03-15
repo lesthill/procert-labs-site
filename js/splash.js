@@ -34,7 +34,7 @@
   var AUTO_DELAY     = 3000;   // ms before auto-trigger
   var FLY_DURATION   = 1.8;    // seconds for the fly-through
   var HEX_RADIUS     = 2.2;
-  var HEX_TUBE       = 0.12;   // tube radius for the hexagon frame edges
+  var HEX_TUBE       = 0.16;   // tube radius for the hexagon frame edges
   var HEX_DEPTH      = 1.0;    // how deep the hexagonal tunnel is
 
   // ---------------------------------------------------------------
@@ -72,13 +72,13 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(BG, 1);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 1.6;
 
   // ---------------------------------------------------------------
   // Scene & Camera
   // ---------------------------------------------------------------
   var scene  = new THREE.Scene();
-  scene.fog  = new THREE.FogExp2(BG, 0.035);
+  scene.fog  = new THREE.FogExp2(BG, 0.012);
 
   var camera = new THREE.PerspectiveCamera(
     60,
@@ -91,20 +91,25 @@
   // ---------------------------------------------------------------
   // Lighting
   // ---------------------------------------------------------------
-  var ambientLight = new THREE.AmbientLight(WHITE, 0.25);
+  var ambientLight = new THREE.AmbientLight(WHITE, 0.5);
   scene.add(ambientLight);
 
-  var pointIndigo = new THREE.PointLight(INDIGO, 3, 20);
-  pointIndigo.position.set(-3, 2, 4);
+  var pointIndigo = new THREE.PointLight(INDIGO, 6, 30);
+  pointIndigo.position.set(-3, 2, 5);
   scene.add(pointIndigo);
 
-  var pointCyan = new THREE.PointLight(CYAN, 3, 20);
-  pointCyan.position.set(3, -2, 4);
+  var pointCyan = new THREE.PointLight(CYAN, 6, 30);
+  pointCyan.position.set(3, -2, 5);
   scene.add(pointCyan);
 
-  var rimLight = new THREE.PointLight(WHITE, 1.5, 15);
-  rimLight.position.set(0, 0, 8);
+  var rimLight = new THREE.PointLight(WHITE, 3, 20);
+  rimLight.position.set(0, 0, 9);
   scene.add(rimLight);
+
+  // Front fill light so the hexagon pops
+  var frontFill = new THREE.PointLight(0x8b5cf6, 4, 15);
+  frontFill.position.set(0, 0, 3);
+  scene.add(frontFill);
 
   // ---------------------------------------------------------------
   // Helper — hexagon vertex positions (flat-top)
@@ -128,11 +133,11 @@
   var hexGroup = new THREE.Group();
 
   var frameMat = new THREE.MeshStandardMaterial({
-    color: 0x1e1b4b,
+    color: 0x4f46e5,
     emissive: INDIGO,
-    emissiveIntensity: 0.6,
-    metalness: 0.8,
-    roughness: 0.25,
+    emissiveIntensity: 1.2,
+    metalness: 0.9,
+    roughness: 0.15,
   });
 
   // Front ring, back ring, and connecting struts form the 3D tunnel frame
@@ -190,7 +195,7 @@
   var glowMat = new THREE.MeshBasicMaterial({
     color: INDIGO,
     transparent: true,
-    opacity: 0.12,
+    opacity: 0.25,
     side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
@@ -214,23 +219,23 @@
   checkPath.add(new THREE.LineCurve3(p1, p2));
   checkPath.add(new THREE.LineCurve3(p2, p3));
 
-  var checkGeo = new THREE.TubeGeometry(checkPath, 32, 0.08, 8, false);
+  var checkGeo = new THREE.TubeGeometry(checkPath, 32, 0.1, 8, false);
   var checkMat = new THREE.MeshStandardMaterial({
-    color: 0x0e7490,
+    color: 0x22d3ee,
     emissive: CYAN,
-    emissiveIntensity: 0.9,
-    metalness: 0.6,
-    roughness: 0.3,
+    emissiveIntensity: 1.5,
+    metalness: 0.7,
+    roughness: 0.2,
   });
   var checkMesh = new THREE.Mesh(checkGeo, checkMat);
   checkGroup.add(checkMesh);
 
   // Checkmark glow halo (additive)
-  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 32, 0.18, 8, false);
+  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 32, 0.25, 8, false);
   var checkGlowMat = new THREE.MeshBasicMaterial({
     color: CYAN,
     transparent: true,
-    opacity: 0.15,
+    opacity: 0.3,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   });
@@ -265,10 +270,10 @@
   particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
 
   var particleMat = new THREE.PointsMaterial({
-    color: 0x818cf8,
-    size: 0.04,
+    color: 0xa5b4fc,
+    size: 0.05,
     transparent: true,
-    opacity: 0.6,
+    opacity: 0.8,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     sizeAttenuation: true,
