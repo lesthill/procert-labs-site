@@ -148,9 +148,15 @@
       var a = pts[i];
       var b = pts[(i + 1) % 6];
       var path = new THREE.LineCurve3(a, b);
-      var tubeGeo = new THREE.TubeGeometry(path, 1, HEX_TUBE, 8, false);
+      var tubeGeo = new THREE.TubeGeometry(path, 4, HEX_TUBE, 32, false);
       var mesh = new THREE.Mesh(tubeGeo, frameMat);
       group.add(mesh);
+
+      // Sphere at each vertex for perfectly smooth joins
+      var sphereGeo = new THREE.SphereGeometry(HEX_TUBE, 32, 32);
+      var sphere = new THREE.Mesh(sphereGeo, frameMat);
+      sphere.position.copy(a);
+      group.add(sphere);
     }
     return group;
   }
@@ -167,7 +173,7 @@
   var backPts  = hexPoints(HEX_RADIUS, -HEX_DEPTH / 2);
   for (var i = 0; i < 6; i++) {
     var path = new THREE.LineCurve3(frontPts[i], backPts[i]);
-    var strutGeo = new THREE.TubeGeometry(path, 1, HEX_TUBE, 8, false);
+    var strutGeo = new THREE.TubeGeometry(path, 4, HEX_TUBE, 32, false);
     var strut = new THREE.Mesh(strutGeo, frameMat);
     hexGroup.add(strut);
   }
@@ -219,7 +225,7 @@
   checkPath.add(new THREE.LineCurve3(p1, p2));
   checkPath.add(new THREE.LineCurve3(p2, p3));
 
-  var checkGeo = new THREE.TubeGeometry(checkPath, 32, 0.1, 8, false);
+  var checkGeo = new THREE.TubeGeometry(checkPath, 64, 0.1, 32, false);
   var checkMat = new THREE.MeshStandardMaterial({
     color: 0x22d3ee,
     emissive: CYAN,
@@ -231,7 +237,7 @@
   checkGroup.add(checkMesh);
 
   // Checkmark glow halo (additive)
-  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 32, 0.25, 8, false);
+  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 64, 0.25, 32, false);
   var checkGlowMat = new THREE.MeshBasicMaterial({
     color: CYAN,
     transparent: true,
