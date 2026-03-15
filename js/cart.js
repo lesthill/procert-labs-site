@@ -283,6 +283,39 @@
       '.cart-toast-label{font-size:12px;font-weight:600;color:#f8fafc;margin-bottom:1px;}' +
       '.cart-toast-title{font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
 
+      /* ── Card Added Overlay ── */
+      '.card-added-overlay{' +
+        'position:absolute;inset:0;z-index:50;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'background:rgba(5,5,16,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);' +
+        'border-radius:20px;opacity:0;transform:scale(0.95);' +
+        'transition:opacity 0.35s cubic-bezier(0.16,1,0.3,1),transform 0.35s cubic-bezier(0.16,1,0.3,1);' +
+        'pointer-events:none;' +
+      '}' +
+      '.card-added-overlay.active{opacity:1;transform:scale(1);}' +
+      '.card-added-overlay.exiting{opacity:0;transform:scale(1.05);transition:opacity 0.4s ease,transform 0.4s ease;}' +
+      '.card-added-inner{display:flex;flex-direction:column;align-items:center;gap:12px;}' +
+      '.card-added-check{width:56px;height:56px;}' +
+      '.card-added-circle{' +
+        'stroke:url(#addedGrad);stroke-width:2.5;' +
+        'stroke-dasharray:150;stroke-dashoffset:150;' +
+        'transition:stroke-dashoffset 0.6s cubic-bezier(0.65,0,0.35,1) 0.1s;' +
+      '}' +
+      '.card-added-overlay.active .card-added-circle{stroke-dashoffset:0;}' +
+      '.card-added-path{' +
+        'stroke:#10b981;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;' +
+        'stroke-dasharray:30;stroke-dashoffset:30;' +
+        'transition:stroke-dashoffset 0.4s cubic-bezier(0.65,0,0.35,1) 0.45s;' +
+      '}' +
+      '.card-added-overlay.active .card-added-path{stroke-dashoffset:0;}' +
+      '.card-added-text{' +
+        'font-family:"Space Grotesk","Inter",sans-serif;font-size:14px;font-weight:600;' +
+        'color:#f8fafc;letter-spacing:0.02em;' +
+        'opacity:0;transform:translateY(6px);' +
+        'transition:opacity 0.3s ease 0.6s,transform 0.3s ease 0.6s;' +
+      '}' +
+      '.card-added-overlay.active .card-added-text{opacity:1;transform:translateY(0);}' +
+
       /* ── Mobile responsive ── */
       '@media(max-width:576px){' +
         '.cart-panel{width:100%;border-left:none;border-radius:20px 20px 0 0;}' +
@@ -489,6 +522,39 @@
     }
   }
 
+  // ─── Added-to-Cart Overlay ─────────────────────────────────────────
+  function showAddedOverlay(cardEl) {
+    if (!cardEl) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'card-added-overlay';
+    overlay.innerHTML =
+      '<div class="card-added-inner">' +
+        '<svg class="card-added-check" viewBox="0 0 52 52">' +
+          '<defs><linearGradient id="addedGrad" x1="0" y1="0" x2="52" y2="52"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>' +
+          '<circle class="card-added-circle" cx="26" cy="26" r="24" fill="none"/>' +
+          '<path class="card-added-path" fill="none" d="M15 27l7 7 15-15"/>' +
+        '</svg>' +
+        '<span class="card-added-text">Course Added</span>' +
+      '</div>';
+
+    cardEl.style.position = 'relative';
+    cardEl.appendChild(overlay);
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        overlay.classList.add('active');
+      });
+    });
+
+    setTimeout(function () {
+      overlay.classList.add('exiting');
+      setTimeout(function () {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 500);
+    }, 1400);
+  }
+
   // ─── Toast Notification ────────────────────────────────────────────
   function showToast(title) {
     // Enforce max toasts
@@ -632,10 +698,10 @@
 
       var added = addToCart(item);
       if (added) {
+        showAddedOverlay(cta.closest('.courseware-card'));
         showToast(item.title);
         updateCartBadge();
       } else {
-        // Already in cart — open the panel to show them
         showToast(item.title + ' (already in cart)');
         openCartPanel();
       }
