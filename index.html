@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProCert Labs | The Gold Standard in Courseware Certification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/splash.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/marketplace.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-screen loading">
+        <canvas id="splashCanvas"></canvas>
+        <div class="splash-text">ProCert<span>Labs</span></div>
+        <div class="splash-hint">Click anywhere to enter</div>
+    </div>
+    <div class="splash-flash" id="splashFlash"></div>
+
+    <!-- Cursor glow effect -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2L37 11V29L20 38L3 29V11L20 2Z" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
+                        <path d="M20 8L31 14V26L20 32L9 26V14L20 8Z" fill="url(#logoGrad)" opacity="0.15"/>
+                        <path d="M14 18L18 22L26 14" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="3" y1="2" x2="37" y2="38">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#06b6d4"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">ProCert<span class="logo-accent">Labs</span></span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#marketplace" class="nav-link">Certified Courseware</a>
+                <a href="#programs" class="nav-link">Programs</a>
+                <a href="#process" class="nav-link">Certification Process</a>
+                <a href="#publishers" class="nav-link">For Publishers</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link nav-cta">Get Certified <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <canvas id="particleCanvas"></canvas>
+            <div class="hero-gradient-orb hero-orb-1"></div>
+            <div class="hero-gradient-orb hero-orb-2"></div>
+            <div class="hero-gradient-orb hero-orb-3"></div>
+            <div class="hero-grid"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge animate-in">
+                <span class="badge-dot"></span>
+                Trusted by Microsoft, CompTIA, Adobe & Cisco since 2001
+            </div>
+            <h1 class="hero-title animate-in delay-1">
+                The Gold Standard in<br>
+                <span class="gradient-text">Courseware Certification</span>
+            </h1>
+            <p class="hero-subtitle animate-in delay-2">
+                We lab-test and certify training content so learners get proven quality
+                and publishers earn the seal that opens doors worldwide.
+            </p>
+            <div class="hero-actions animate-in delay-3">
+                <a href="#marketplace" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search"></i> Browse Certified Courseware
+                </a>
+                <a href="#process" class="btn btn-ghost btn-lg">
+                    <i class="fas fa-play-circle"></i> How It Works
+                </a>
+            </div>
+            <div class="hero-stats animate-in delay-4">
+                <div class="hero-stat">
+                    <span class="stat-number" data-target="2847">0</span>
+                    <span class="stat-label">Certified Titles</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="stat-number" data-target="340">0</span>
+                    <span class="stat-label">Publishers Worldwide</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="stat-number" data-target="23">0</span>
+                    <span class="stat-label">Years of Trust</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="stat-number" data-target="6">0</span>
+                    <span class="stat-label">Program Partners</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <span>Scroll to explore</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Partner Logos Ticker -->
+    <section class="partners-ticker">
+        <div class="ticker-track">
+            <div class="ticker-content">
+                <div class="partner-logo-item">
+                    <i class="fab fa-microsoft"></i>
+                    <span>Microsoft Office Specialist</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fab fa-microsoft"></i>
+                    <span>Microsoft Technical Associate</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>CompTIA CAQC</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fab fa-adobe"></i>
+                    <span>Adobe Certified Associate</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-globe"></i>
+                    <span>Certiport IC3</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>Cisco Networking</span>
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="partner-logo-item">
+                    <i class="fab fa-microsoft"></i>
+                    <span>Microsoft Office Specialist</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fab fa-microsoft"></i>
+                    <span>Microsoft Technical Associate</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>CompTIA CAQC</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fab fa-adobe"></i>
+                    <span>Adobe Certified Associate</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-globe"></i>
+                    <span>Certiport IC3</span>
+                </div>
+                <div class="partner-logo-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>Cisco Networking</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section class="programs-section" id="programs">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Certification Programs</span>
+                <h2 class="section-title">Partnered With the <span class="gradient-text">Industry's Best</span></h2>
+                <p class="section-subtitle">We work directly with the world's leading technology vendors to lab-test and certify third-party courseware to their exacting standards.</p>
+            </div>
+            <div class="programs-grid">
+                <div class="program-card" data-program="mos">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fab fa-microsoft"></i>
+                    </div>
+                    <h3>Microsoft Office Specialist</h3>
+                    <p>Certified courseware for Word, Excel, PowerPoint, Outlook, and Access certification exam preparation.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 847 Titles</span>
+                        <span><i class="fas fa-building"></i> 124 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse MOS Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="program-card" data-program="mta">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fab fa-microsoft"></i>
+                    </div>
+                    <h3>Microsoft Technical Associate</h3>
+                    <p>Quality-verified content for foundational IT certifications spanning development, databases, and infrastructure.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 532 Titles</span>
+                        <span><i class="fas fa-building"></i> 98 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse MTA Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="program-card" data-program="comptia">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3>CompTIA CAQC</h3>
+                    <p>Authorized Quality Content certification for A+, Network+, Security+, and the full CompTIA certification stack.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 621 Titles</span>
+                        <span><i class="fas fa-building"></i> 87 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse CompTIA Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="program-card" data-program="adobe">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fab fa-adobe"></i>
+                    </div>
+                    <h3>Adobe Certified Associate</h3>
+                    <p>Approved courseware for Photoshop, Illustrator, InDesign, Premiere Pro, and After Effects certification paths.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 394 Titles</span>
+                        <span><i class="fas fa-building"></i> 56 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse Adobe Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="program-card" data-program="ic3">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Certiport IC3</h3>
+                    <p>Digital literacy courseware certification covering computing fundamentals, key applications, and online living.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 268 Titles</span>
+                        <span><i class="fas fa-building"></i> 43 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse IC3 Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="program-card" data-program="cisco">
+                    <div class="program-card-glow"></div>
+                    <div class="program-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>Cisco Networking</h3>
+                    <p>Certified training materials for CCNA, CCNP, and enterprise networking certification preparation.</p>
+                    <div class="program-stats">
+                        <span><i class="fas fa-book"></i> 185 Titles</span>
+                        <span><i class="fas fa-building"></i> 31 Publishers</span>
+                    </div>
+                    <a href="#marketplace" class="program-link">Browse Cisco Courseware <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marketplace Section (Amazon-Style) -->
+    <section class="marketplace-section" id="marketplace">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Certified Courseware Marketplace</span>
+                <h2 class="section-title">Find <span class="gradient-text">Proven Training Content</span></h2>
+                <p class="section-subtitle">Every title below has been lab-tested by ProCert and carries our seal of quality. Search, filter, and find the perfect courseware for your learners.</p>
+            </div>
+
+            <!-- Marketplace Search & Filters -->
+            <div class="marketplace-controls">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="coursewareSearch" placeholder="Search certified courseware by title, publisher, or exam..." autocomplete="off">
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Program</label>
+                        <select id="filterProgram">
+                            <option value="all">All Programs</option>
+                            <option value="mos">Microsoft Office Specialist</option>
+                            <option value="mta">Microsoft Technical Associate</option>
+                            <option value="comptia">CompTIA CAQC</option>
+                            <option value="adobe">Adobe Certified Associate</option>
+                            <option value="ic3">Certiport IC3</option>
+                            <option value="cisco">Cisco Networking</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Format</label>
+                        <select id="filterFormat">
+                            <option value="all">All Formats</option>
+                            <option value="text">Text-Based</option>
+                            <option value="web">Web-Based</option>
+                            <option value="video">Video-Based</option>
+                            <option value="computer">Computer-Based</option>
+                            <option value="instructor">Instructor-Led</option>
+                            <option value="self-study">Self-Study</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort By</label>
+                        <select id="filterSort">
+                            <option value="featured">Featured</option>
+                            <option value="newest">Newest First</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="popular">Most Popular</option>
+                            <option value="publisher">Publisher A-Z</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Exam</label>
+                        <select id="filterExam">
+                            <option value="all">All Exams</option>
+                            <option value="mo-100">MO-100: Word</option>
+                            <option value="mo-200">MO-200: Excel</option>
+                            <option value="mo-300">MO-300: PowerPoint</option>
+                            <option value="mo-400">MO-400: Outlook</option>
+                            <option value="98-361">98-361: Software Dev</option>
+                            <option value="98-364">98-364: Database</option>
+                            <option value="220-1101">220-1101: A+ Core 1</option>
+                            <option value="220-1102">220-1102: A+ Core 2</option>
+                            <option value="n10-009">N10-009: Network+</option>
+                            <option value="sy0-701">SY0-701: Security+</option>
+                        </select>
+                    </div>
+                    <button class="filter-reset" id="filterReset">
+                        <i class="fas fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+                <div class="results-bar">
+                    <span class="results-count" id="resultsCount">Showing <strong>48</strong> certified titles</span>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid"><i class="fas fa-grid-2"></i></button>
+                        <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courseware Grid -->
+            <div class="courseware-grid" id="coursewareGrid">
+                <!-- Cards are generated by JS -->
+            </div>
+
+            <!-- Load More -->
+            <div class="marketplace-footer">
+                <button class="btn btn-secondary btn-lg" id="loadMore">
+                    Load More Courseware <i class="fas fa-chevron-down"></i>
+                </button>
+                <p class="marketplace-note">Showing the latest certified titles. <a href="#">View full catalog</a> with 2,847+ approved courseware products.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process-section" id="process">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">How It Works</span>
+                <h2 class="section-title">The ProCert <span class="gradient-text">Certification Process</span></h2>
+                <p class="section-subtitle">Our rigorous, transparent lab-testing process ensures only the highest quality courseware earns the ProCert seal.</p>
+            </div>
+            <div class="process-timeline">
+                <div class="process-line"></div>
+                <div class="process-step" data-step="1">
+                    <div class="step-marker">
+                        <span>01</span>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon"><i class="fas fa-paper-plane"></i></div>
+                        <h3>Submit Your Courseware</h3>
+                        <p>Publishers submit their training content along with the target certification exam and delivery format. We accept text, web, video, computer-based, instructor-led, and self-study materials.</p>
+                    </div>
+                </div>
+                <div class="process-step" data-step="2">
+                    <div class="step-marker">
+                        <span>02</span>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon"><i class="fas fa-microscope"></i></div>
+                        <h3>Lab Testing & Analysis</h3>
+                        <p>Our quality assurance engineers systematically test every piece of content against the official exam objectives, verifying coverage depth, accuracy, and instructional effectiveness.</p>
+                    </div>
+                </div>
+                <div class="process-step" data-step="3">
+                    <div class="step-marker">
+                        <span>03</span>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <h3>Detailed Reporting</h3>
+                        <p>You receive a comprehensive quality report with exam objective coverage mapping, accuracy findings, and actionable recommendations for any areas needing improvement.</p>
+                    </div>
+                </div>
+                <div class="process-step" data-step="4">
+                    <div class="step-marker">
+                        <span>04</span>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon"><i class="fas fa-award"></i></div>
+                        <h3>Earn the ProCert Seal</h3>
+                        <p>Courseware that meets our standards receives the ProCert Approved seal — recognized worldwide as the mark of quality-verified training content by learners, institutions, and employers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="proof-section" id="proof">
+        <div class="container">
+            <div class="proof-grid">
+                <div class="proof-card proof-card-large">
+                    <div class="proof-quote">
+                        <i class="fas fa-quote-left"></i>
+                        <p>"ProCert's approval process transformed our courseware from good to exceptional. The detailed feedback on exam coverage gaps was worth its weight in gold. Our pass rates jumped 23% after implementing their recommendations."</p>
+                    </div>
+                    <div class="proof-author">
+                        <div class="author-avatar">JM</div>
+                        <div>
+                            <strong>Jennifer Martinez</strong>
+                            <span>VP of Content, Jasperactive</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <div class="proof-metric">
+                        <span class="metric-value">98.7%</span>
+                        <span class="metric-label">Publisher Satisfaction Rate</span>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <div class="proof-metric">
+                        <span class="metric-value">23%</span>
+                        <span class="metric-label">Avg. Pass Rate Improvement</span>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <div class="proof-quote proof-quote-small">
+                        <p>"The ProCert seal on our materials immediately signals trust. Institutions won't even consider uncertified courseware anymore."</p>
+                    </div>
+                    <div class="proof-author">
+                        <div class="author-avatar">RK</div>
+                        <div>
+                            <strong>Robert Kim</strong>
+                            <span>CEO, LearnKey</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <div class="proof-quote proof-quote-small">
+                        <p>"We've worked with ProCert for 15 years. Their lab-testing rigor is unmatched — it's why Microsoft and CompTIA trust them."</p>
+                    </div>
+                    <div class="proof-author">
+                        <div class="author-avatar">SP</div>
+                        <div>
+                            <strong>Sarah Park</strong>
+                            <span>Director of Learning, GMetrix</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <div class="proof-metric">
+                        <span class="metric-value">4.2M+</span>
+                        <span class="metric-label">Learners Using Certified Content</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Publishers CTA Section -->
+    <section class="publishers-section" id="publishers">
+        <div class="container">
+            <div class="publishers-wrapper">
+                <div class="publishers-content">
+                    <span class="section-tag">For Publishers</span>
+                    <h2 class="section-title">Ready to Earn the <span class="gradient-text">Seal of Quality?</span></h2>
+                    <p>The ProCert Approved seal tells learners, institutions, and employers that your courseware has been independently lab-tested and verified against official exam objectives. It's the difference between "trust us" and "proven quality."</p>
+                    <div class="publisher-benefits">
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Increase Sales & Adoption</strong>
+                                <span>Certified courseware outsells uncertified alternatives by 3.2x on average</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Marketplace Listing</strong>
+                                <span>Get featured in our certified courseware marketplace — visited by 50,000+ buyers monthly</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Quality Insights Report</strong>
+                                <span>Detailed exam coverage mapping and actionable feedback to improve your content</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Vendor Recognition</strong>
+                                <span>Microsoft, CompTIA, and Adobe actively recommend ProCert-approved courseware</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="publisher-actions">
+                        <a href="#contact" class="btn btn-primary btn-lg">Submit Courseware for Review</a>
+                        <a href="#" class="btn btn-ghost btn-lg">Download Publisher Guide</a>
+                    </div>
+                </div>
+                <div class="publishers-visual">
+                    <div class="seal-showcase">
+                        <div class="seal-3d">
+                            <div class="seal-ring"></div>
+                            <div class="seal-inner">
+                                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="60" cy="60" r="55" stroke="url(#sealGrad)" stroke-width="2"/>
+                                    <circle cx="60" cy="60" r="45" stroke="url(#sealGrad)" stroke-width="1" opacity="0.5"/>
+                                    <path d="M50 58L56 64L72 48" stroke="url(#sealGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <text x="60" y="85" text-anchor="middle" fill="url(#sealGrad)" font-size="8" font-weight="700" letter-spacing="2">APPROVED</text>
+                                    <text x="60" y="35" text-anchor="middle" fill="url(#sealGrad)" font-size="7" font-weight="600" letter-spacing="3">PROCERT</text>
+                                    <defs>
+                                        <linearGradient id="sealGrad" x1="0" y1="0" x2="120" y2="120">
+                                            <stop offset="0%" stop-color="#6366f1"/>
+                                            <stop offset="50%" stop-color="#8b5cf6"/>
+                                            <stop offset="100%" stop-color="#06b6d4"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="seal-particles"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-wrapper">
+                <div class="about-content">
+                    <span class="section-tag">About ProCert Labs</span>
+                    <h2 class="section-title">Setting the Standard <span class="gradient-text">Since 2001</span></h2>
+                    <p class="about-lead">Based in Bountiful, Utah, ProCert Labs has been the industry's trusted independent quality assurance lab for technical training and courseware for over two decades.</p>
+                    <p>We partner directly with the world's leading technology vendors — Microsoft, CompTIA, Adobe, Certiport, and Cisco — to develop and apply rigorous quality standards to third-party training products. Our mission is simple: ensure that learners everywhere have access to training content that actually prepares them for success.</p>
+                    <p>Every title that earns our seal has been systematically tested against official exam objectives by our team of QA engineers. We don't just check boxes — we evaluate instructional design, technical accuracy, coverage depth, and real-world applicability.</p>
+                    <div class="about-values">
+                        <div class="value-item">
+                            <div class="value-icon"><i class="fas fa-flask"></i></div>
+                            <h4>Rigor</h4>
+                            <p>Every title tested against every exam objective</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon"><i class="fas fa-handshake"></i></div>
+                            <h4>Independence</h4>
+                            <p>Unbiased testing, no conflicts of interest</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon"><i class="fas fa-eye"></i></div>
+                            <h4>Transparency</h4>
+                            <p>Detailed reports, clear standards, open process</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="about-image-grid">
+                        <div class="about-img-card">
+                            <div class="img-placeholder">
+                                <i class="fas fa-building"></i>
+                                <span>ProCert Labs HQ</span>
+                                <small>Bountiful, Utah</small>
+                            </div>
+                        </div>
+                        <div class="about-img-card stacked">
+                            <div class="img-placeholder">
+                                <i class="fas fa-users-gear"></i>
+                                <span>QA Engineering Team</span>
+                                <small>Lab Testing in Action</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <span class="section-tag">Get In Touch</span>
+                    <h2 class="section-title">Let's <span class="gradient-text">Talk Quality</span></h2>
+                    <p>Whether you're a publisher ready to certify your courseware, an institution looking for approved content, or a vendor exploring a partnership — we'd love to hear from you.</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-location-dot"></i></div>
+                            <div>
+                                <strong>Headquarters</strong>
+                                <span>Bountiful, Utah, USA</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <strong>Email</strong>
+                                <span>info@procert.com</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <strong>Business Hours</strong>
+                                <span>Mon–Fri, 8am–5pm MST</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" required placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" required placeholder="Smith">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" required placeholder="john@publisher.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" placeholder="Your Organization">
+                        </div>
+                        <div class="form-group">
+                            <label>I'm interested in...</label>
+                            <select>
+                                <option value="">Select an option</option>
+                                <option>Certifying my courseware</option>
+                                <option>Finding certified content</option>
+                                <option>Vendor partnership</option>
+                                <option>General inquiry</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea rows="4" placeholder="Tell us about your project..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-full">
+                            Send Message <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="nav-logo">
+                        <div class="logo-icon">
+                            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 2L37 11V29L20 38L3 29V11L20 2Z" stroke="url(#logoGrad2)" stroke-width="2" fill="none"/>
+                                <path d="M14 18L18 22L26 14" stroke="url(#logoGrad2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <defs>
+                                    <linearGradient id="logoGrad2" x1="3" y1="2" x2="37" y2="38">
+                                        <stop offset="0%" stop-color="#6366f1"/>
+                                        <stop offset="100%" stop-color="#06b6d4"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="logo-text">ProCert<span class="logo-accent">Labs</span></span>
+                    </a>
+                    <p>The gold standard in courseware certification. Lab-tested quality you can trust.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Programs</h4>
+                    <a href="#">Microsoft Office Specialist</a>
+                    <a href="#">Microsoft Technical Associate</a>
+                    <a href="#">CompTIA CAQC</a>
+                    <a href="#">Adobe Certified Associate</a>
+                    <a href="#">Certiport IC3</a>
+                    <a href="#">Cisco Networking</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <a href="#">Find Courseware</a>
+                    <a href="#">Publisher Guide</a>
+                    <a href="#">Quality Standards</a>
+                    <a href="#">Certification Process</a>
+                    <a href="#">FAQ</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ProCert Labs. All rights reserved. Based in Bountiful, Utah.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="js/splash.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/marketplace.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

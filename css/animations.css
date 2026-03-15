@@ -1,0 +1,898 @@
+/* ============================================================
+   ProCert Labs — animations.css
+   Premium keyframe animations & interaction utilities
+   Colors: #6366f1 → #8b5cf6 → #06b6d4 | Dark BG: #050510
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. KEYFRAME ANIMATIONS
+   ------------------------------------------------------------ */
+
+/* Float — gentle hovering for orbs & decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Pulse-glow — subtle breathing for glowing accents */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Gradient-shift — animated background-position for flowing gradients */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Shimmer — left-to-right shine sweep for badges & seals */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Ticker-scroll — infinite horizontal ticker */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Spin-slow — lazy full rotation for decorative rings */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fade-in-up — content entrance from below */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade-in-down — content entrance from above */
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale-in — pop-in entrance */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide-in-left — timeline items entering from left */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide-in-right — timeline items entering from right */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Dash — SVG stroke drawing */
+@keyframes dash {
+  from {
+    stroke-dashoffset: var(--dash-length, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Count-up — visual number counter clip effect */
+@keyframes count-up {
+  from {
+    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+/* Blob — organic morphing for gradient orbs */
+@keyframes blob {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%;
+  }
+  75% {
+    border-radius: 60% 30% 60% 40% / 70% 50% 40% 60%;
+  }
+}
+
+/* Glow-pulse — box-shadow breathing for hover states */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(99, 102, 241, 0.3),
+      0 0 40px rgba(139, 92, 246, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(99, 102, 241, 0.5),
+      0 0 60px rgba(139, 92, 246, 0.25),
+      0 0 80px rgba(6, 182, 212, 0.1);
+  }
+}
+
+/* Typewriter — cursor blink for hero subtitle */
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  0%, 100% {
+    border-right-color: transparent;
+  }
+  50% {
+    border-right-color: #8b5cf6;
+  }
+}
+
+/* Progress-fill — coverage bar fill from left */
+@keyframes progress-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--coverage, 100%);
+  }
+}
+
+/* Particle-float — randomised floating for background particles */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translate(10px, -20px) scale(1.1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-5px, -35px) scale(0.95);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate(15px, -15px) scale(1.05);
+    opacity: 0.6;
+  }
+}
+
+/* Seal-rotate — slow 3D rotation for seal showcase */
+@keyframes seal-rotate {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+}
+
+/* Border-dance — animated gradient border via conic-gradient rotation */
+@keyframes border-dance {
+  0% {
+    --border-angle: 0deg;
+  }
+  100% {
+    --border-angle: 360deg;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   2. SCROLL-TRIGGERED ENTRANCE — .animate-in
+   ------------------------------------------------------------ */
+
+.animate-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered delays */
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+.delay-5 { transition-delay: 0.5s; }
+
+
+/* ------------------------------------------------------------
+   3. HOVER UTILITIES
+   ------------------------------------------------------------ */
+
+.hover-lift {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(99, 102, 241, 0.1);
+}
+
+.hover-glow {
+  transition: box-shadow 0.4s ease;
+  will-change: box-shadow;
+}
+
+.hover-glow:hover {
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.4),
+    0 0 40px rgba(139, 92, 246, 0.2),
+    0 0 60px rgba(6, 182, 212, 0.1);
+}
+
+
+/* ------------------------------------------------------------
+   4. PARALLAX BASE
+   ------------------------------------------------------------ */
+
+.parallax {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+
+/* ------------------------------------------------------------
+   5. STAGGER CHILDREN
+   ------------------------------------------------------------ */
+
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.stagger-children.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-children > *:nth-child(1)  { transition-delay: 0.05s; }
+.stagger-children > *:nth-child(2)  { transition-delay: 0.10s; }
+.stagger-children > *:nth-child(3)  { transition-delay: 0.15s; }
+.stagger-children > *:nth-child(4)  { transition-delay: 0.20s; }
+.stagger-children > *:nth-child(5)  { transition-delay: 0.25s; }
+.stagger-children > *:nth-child(6)  { transition-delay: 0.30s; }
+.stagger-children > *:nth-child(7)  { transition-delay: 0.35s; }
+.stagger-children > *:nth-child(8)  { transition-delay: 0.40s; }
+.stagger-children > *:nth-child(9)  { transition-delay: 0.45s; }
+.stagger-children > *:nth-child(10) { transition-delay: 0.50s; }
+.stagger-children > *:nth-child(11) { transition-delay: 0.55s; }
+.stagger-children > *:nth-child(12) { transition-delay: 0.60s; }
+
+
+/* ------------------------------------------------------------
+   6. HERO ORBS
+   ------------------------------------------------------------ */
+
+.hero-orb-1,
+.hero-orb-2,
+.hero-orb-3 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform, border-radius;
+  pointer-events: none;
+}
+
+.hero-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+  top: -15%;
+  left: -10%;
+  animation:
+    blob 12s ease-in-out infinite,
+    float 6s ease-in-out infinite;
+}
+
+.hero-orb-2 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  top: 20%;
+  right: -5%;
+  animation:
+    blob 14s ease-in-out infinite reverse,
+    float 7s ease-in-out 1s infinite;
+}
+
+.hero-orb-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+  bottom: -10%;
+  left: 30%;
+  animation:
+    blob 10s ease-in-out 2s infinite,
+    float 8s ease-in-out 0.5s infinite;
+}
+
+
+/* ------------------------------------------------------------
+   7. HERO GRID — perspective grid fading into distance
+   ------------------------------------------------------------ */
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5) 30%, transparent 90%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5) 30%, transparent 90%);
+  perspective: 400px;
+}
+
+.hero-grid::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  transform: rotateX(60deg);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 59px,
+      rgba(99, 102, 241, 0.06) 59px,
+      rgba(99, 102, 241, 0.06) 60px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 59px,
+      rgba(99, 102, 241, 0.06) 59px,
+      rgba(99, 102, 241, 0.06) 60px
+    );
+  background-size: 60px 60px;
+}
+
+
+/* ------------------------------------------------------------
+   8. SCROLL INDICATOR
+   ------------------------------------------------------------ */
+
+.hero-scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: fade-in-up 1s ease-out 1.5s both;
+}
+
+.hero-scroll-indicator::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 0;
+  background: linear-gradient(to bottom, #6366f1, transparent);
+  animation: scroll-line-grow 2s ease-in-out 2s infinite;
+}
+
+@keyframes scroll-line-grow {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    height: 40px;
+    opacity: 0;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   9. PROCESS TIMELINE
+   ------------------------------------------------------------ */
+
+.process-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(99, 102, 241, 0.1);
+  overflow: hidden;
+}
+
+.process-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--line-progress, 0%);
+  background: linear-gradient(to bottom, #6366f1, #8b5cf6, #06b6d4);
+  transition: height 0.15s linear;
+  will-change: height;
+}
+
+.process-step {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.process-step:nth-child(odd) {
+  transform: translateX(-60px);
+}
+
+.process-step:nth-child(even) {
+  transform: translateX(60px);
+}
+
+.process-step.visible:nth-child(odd) {
+  animation: slide-in-left 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.process-step.visible:nth-child(even) {
+  animation: slide-in-right 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ------------------------------------------------------------
+   10. SEAL SHOWCASE
+   ------------------------------------------------------------ */
+
+.seal-3d {
+  perspective: 800px;
+  transform-style: preserve-3d;
+  animation: seal-rotate 20s linear infinite;
+  will-change: transform;
+}
+
+.seal-ring {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #6366f1;
+  border-right-color: #8b5cf6;
+  animation: spin-slow 20s linear infinite;
+  will-change: transform;
+}
+
+.seal-ring::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-bottom-color: #06b6d4;
+  border-left-color: rgba(6, 182, 212, 0.4);
+  animation: spin-slow 15s linear infinite reverse;
+}
+
+.seal-particles {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+}
+
+.seal-particles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  animation: particle-float 4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.seal-particles span:nth-child(1)  { top: 10%; left: 5%;   animation-delay: 0s;    background: #6366f1; }
+.seal-particles span:nth-child(2)  { top: 5%;  right: 15%; animation-delay: 0.5s;  background: #8b5cf6; }
+.seal-particles span:nth-child(3)  { bottom: 8%; left: 20%; animation-delay: 1s;   background: #06b6d4; }
+.seal-particles span:nth-child(4)  { top: 50%; right: 2%;  animation-delay: 1.5s;  background: #6366f1; }
+.seal-particles span:nth-child(5)  { bottom: 15%; right: 10%; animation-delay: 2s; background: #8b5cf6; }
+.seal-particles span:nth-child(6)  { top: 25%; left: 2%;   animation-delay: 2.5s;  background: #06b6d4; }
+.seal-particles span:nth-child(7)  { bottom: 5%; left: 50%; animation-delay: 0.8s;  background: #6366f1; }
+.seal-particles span:nth-child(8)  { top: 2%;  left: 50%;  animation-delay: 1.8s;  background: #8b5cf6; }
+
+
+/* ------------------------------------------------------------
+   11. TICKER
+   ------------------------------------------------------------ */
+
+.ticker-track {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.ticker-content {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+.ticker-content:hover {
+  animation-play-state: paused;
+}
+
+
+/* ------------------------------------------------------------
+   12. BADGE DOT — pulsing status indicator
+   ------------------------------------------------------------ */
+
+.badge-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.badge-dot::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.4);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+
+/* ------------------------------------------------------------
+   13. ANIMATED GRADIENT BORDER (border-dance)
+   ------------------------------------------------------------ */
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-dance {
+  position: relative;
+  border-radius: 12px;
+  animation: border-dance 3s linear infinite;
+}
+
+.border-dance::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    #6366f1,
+    #8b5cf6,
+    #06b6d4,
+    transparent 40%,
+    transparent 60%,
+    #6366f1
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+
+/* ------------------------------------------------------------
+   14. ANIMATED GRADIENT TEXT
+   ------------------------------------------------------------ */
+
+.gradient-text-animated {
+  background: linear-gradient(
+    135deg,
+    #6366f1 0%,
+    #8b5cf6 25%,
+    #06b6d4 50%,
+    #8b5cf6 75%,
+    #6366f1 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 3s ease infinite;
+}
+
+
+/* ------------------------------------------------------------
+   15. SHIMMER OVERLAY — for badges, seals, cards
+   ------------------------------------------------------------ */
+
+.shimmer-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent 60%
+  );
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+
+/* ------------------------------------------------------------
+   16. TYPEWRITER EFFECT
+   ------------------------------------------------------------ */
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid #8b5cf6;
+  width: 0;
+  animation:
+    typewriter 3s steps(40) 0.5s forwards,
+    blink-caret 0.75s step-end infinite;
+}
+
+
+/* ------------------------------------------------------------
+   17. PROGRESS / COVERAGE BAR
+   ------------------------------------------------------------ */
+
+.progress-bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+  background-size: 200% 100%;
+  animation:
+    progress-fill 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    gradient-shift 3s ease infinite;
+  will-change: width;
+}
+
+
+/* ------------------------------------------------------------
+   18. SVG DASH DRAW
+   ------------------------------------------------------------ */
+
+.svg-draw path {
+  stroke-dasharray: var(--dash-length, 1000);
+  stroke-dashoffset: var(--dash-length, 1000);
+  will-change: stroke-dashoffset;
+}
+
+.svg-draw.visible path {
+  animation: dash 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ------------------------------------------------------------
+   19. BACKGROUND PARTICLES
+   ------------------------------------------------------------ */
+
+.bg-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-particles span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.3);
+  animation: particle-float var(--duration, 6s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+
+/* ------------------------------------------------------------
+   20. COUNTER ANIMATION
+   ------------------------------------------------------------ */
+
+.count-animate {
+  display: inline-block;
+  animation: count-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: clip-path, opacity;
+}
+
+
+/* ------------------------------------------------------------
+   21. CARD GLASS HOVER STATE
+   ------------------------------------------------------------ */
+
+.card-hover {
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease;
+  will-change: transform, box-shadow;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+
+/* ------------------------------------------------------------
+   22. MAGNETIC BUTTON EFFECT BASE
+   ------------------------------------------------------------ */
+
+.btn-magnetic {
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+.btn-magnetic:hover {
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.4),
+    0 10px 30px rgba(99, 102, 241, 0.2);
+}
+
+
+/* ------------------------------------------------------------
+   REDUCED MOTION — respect user preferences
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .animate-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
+
+  .parallax {
+    transform: none !important;
+  }
+
+  .hero-orb-1,
+  .hero-orb-2,
+  .hero-orb-3 {
+    animation: none;
+  }
+
+  .ticker-content {
+    animation: none;
+  }
+
+  .typewriter {
+    width: auto;
+    border-right: none;
+    animation: none;
+  }
+
+  .seal-3d {
+    animation: none;
+  }
+
+  .seal-ring,
+  .seal-ring::before {
+    animation: none;
+  }
+
+  .progress-bar-fill {
+    animation: none;
+    width: var(--coverage, 100%);
+  }
+}

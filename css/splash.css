@@ -1,0 +1,211 @@
+/* ============================================================
+   ProCert Labs — Three.js Splash Screen Overlay
+   Design tokens: bg #050510, gradient #6366f1→#8b5cf6→#06b6d4
+   Fonts: 'Space Grotesk' (display) / 'Inter' (body)
+   ============================================================ */
+
+/* ---- Keyframes ------------------------------------------- */
+
+@keyframes splashPulse {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 0.6; }
+}
+
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashSpinner {
+  0%   { opacity: 0.25; transform: scale(1); }
+  50%  { opacity: 0.7;  transform: scale(1.35); }
+  100% { opacity: 0.25; transform: scale(1); }
+}
+
+@keyframes splashFlashPulse {
+  0%   { opacity: 0; }
+  30%  { opacity: 0.15; }
+  100% { opacity: 0; }
+}
+
+/* ---- Splash screen container ----------------------------- */
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #050510;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: opacity 0.5s ease;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-screen.done {
+  display: none;
+}
+
+/* ---- Three.js canvas ------------------------------------- */
+
+#splashCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ---- Main title text ------------------------------------- */
+
+.splash-text {
+  position: relative;
+  z-index: 10;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.35),
+               0 0 60px rgba(139, 92, 246, 0.15);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-align: center;
+  margin-top: 8rem;
+  animation: splashFadeIn 0.9s ease-out both;
+  animation-delay: 0.4s;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
+}
+
+.splash-text span {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.splash-screen.flying .splash-text {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* ---- Hint text ------------------------------------------- */
+
+.splash-hint {
+  position: absolute;
+  bottom: 3rem;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+  animation: splashPulse 2.8s ease-in-out infinite;
+  animation-delay: 1.6s;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.splash-screen.flying .splash-hint {
+  opacity: 0;
+}
+
+/* ---- Flash effect (fly-through burst) -------------------- */
+
+.splash-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-flash.active {
+  animation: splashFlashPulse 0.45s ease-out forwards;
+}
+
+/* ---- Loading state --------------------------------------- */
+
+.splash-screen.loading::after {
+  content: '';
+  position: absolute;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.6);
+  z-index: 10;
+  animation: splashSpinner 1.4s ease-in-out infinite;
+}
+
+/* ---- Responsive ------------------------------------------ */
+
+@media (max-width: 768px) {
+  .splash-text {
+    font-size: 2.5rem;
+    margin-top: 6rem;
+  }
+
+  .splash-hint {
+    font-size: 0.7rem;
+    bottom: 2rem;
+  }
+
+  .splash-screen.loading::after {
+    bottom: 3.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .splash-text {
+    font-size: 2rem;
+    margin-top: 5rem;
+  }
+}
+
+/* ---- Reduced motion -------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-text,
+  .splash-hint,
+  .splash-flash.active,
+  .splash-screen.loading::after {
+    animation: none;
+  }
+
+  .splash-text {
+    opacity: 1;
+    transform: none;
+  }
+
+  .splash-hint {
+    opacity: 0.4;
+  }
+
+  .splash-screen {
+    transition: opacity 0.15s ease;
+  }
+
+  .splash-screen.flying .splash-text,
+  .splash-screen.flying .splash-hint {
+    transition: opacity 0.15s ease;
+  }
+}

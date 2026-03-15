@@ -1,0 +1,868 @@
+/* ============================================================
+   ProCert Labs — Courseware Marketplace
+   Premium. Obsessive. Every pixel matters.
+   ============================================================ */
+
+:root {
+  --color-mos:     #0078d4;
+  --color-mta:     #5c2d91;
+  --color-comptia: #c8202f;
+  --color-adobe:   #ff0000;
+  --color-ic3:     #00a4ef;
+  --color-cisco:   #049fd9;
+  --mp-star:       #fbbf24;
+  --mp-ease:       cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ----------------------------------------------------------
+   1. Controls: Search, Filters, Results Bar
+   ---------------------------------------------------------- */
+.marketplace-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.search-bar {
+  position: relative;
+  width: 100%;
+}
+
+.search-bar > i {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+#coursewareSearch {
+  width: 100%;
+  height: 56px;
+  padding: 0 1.5rem 0 3.25rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  outline: none;
+  transition: all 0.35s var(--mp-ease);
+  backdrop-filter: blur(12px);
+}
+
+#coursewareSearch::placeholder { color: var(--text-muted); }
+#coursewareSearch:hover {
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+}
+#coursewareSearch:focus {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15), 0 0 30px rgba(99,102,241,0.06);
+  background: rgba(255,255,255,0.05);
+}
+#coursewareSearch:focus ~ i { color: var(--indigo); }
+
+/* Search Suggestions */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  background: rgba(12,12,24,0.96);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 0.5rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  opacity: 0; visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.3s var(--mp-ease);
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.search-suggestions.active {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.search-suggestions .suggestion-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.85rem; border-radius: 10px; cursor: pointer;
+  transition: background 0.2s ease;
+}
+.search-suggestions .suggestion-item:hover { background: rgba(255,255,255,0.05); }
+.search-suggestions .suggestion-badge {
+  font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem;
+  border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+}
+.search-suggestions .suggestion-title {
+  font-size: 0.875rem; color: var(--text-primary); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.search-suggestions .suggestion-publisher {
+  font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap;
+}
+.filter-group {
+  display: flex; flex-direction: column; gap: 0.35rem;
+}
+.filter-group label {
+  font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); padding-left: 0.25rem;
+}
+.filter-group select {
+  appearance: none; -webkit-appearance: none;
+  font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.6rem 2.2rem 0.6rem 0.85rem;
+  cursor: pointer; outline: none; min-width: 150px;
+  transition: all 0.25s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+.filter-group select:hover {
+  border-color: rgba(255,255,255,0.12); color: var(--text-primary);
+  background-color: rgba(255,255,255,0.05);
+}
+.filter-group select:focus {
+  border-color: var(--indigo); box-shadow: 0 0 0 2px rgba(99,102,241,0.12);
+}
+.filter-group select option { background: #0c0c1a; color: var(--text-primary); }
+
+.filter-reset {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+  color: var(--text-muted); background: none;
+  border: 1px solid transparent; border-radius: 10px;
+  padding: 0.6rem 0.85rem; cursor: pointer;
+  transition: all 0.25s ease; align-self: flex-end;
+}
+.filter-reset:hover {
+  color: var(--text-secondary); background: rgba(255,255,255,0.03);
+  border-color: var(--border);
+}
+
+/* Results Bar */
+.results-bar {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.results-count { font-size: 0.85rem; color: var(--text-secondary); }
+.results-count strong { color: var(--text-primary); font-weight: 600; }
+
+.view-toggle {
+  display: flex; gap: 2px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: 10px; padding: 3px;
+}
+.view-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; background: none; border: none;
+  border-radius: 8px; color: var(--text-muted); cursor: pointer;
+  transition: all 0.2s ease; font-size: 0.85rem;
+}
+.view-btn:hover { color: var(--text-secondary); }
+.view-btn.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+
+/* ----------------------------------------------------------
+   2. Grid
+   ---------------------------------------------------------- */
+.courseware-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.courseware-grid.list-view {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+/* ----------------------------------------------------------
+   3. THE CARD
+   ---------------------------------------------------------- */
+.courseware-card {
+  --program-color: var(--indigo);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s var(--mp-ease),
+    transform 0.6s var(--mp-ease);
+}
+
+.courseware-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Program color mapping */
+.courseware-card[data-program="mos"]     { --program-color: var(--color-mos); }
+.courseware-card[data-program="mta"]     { --program-color: var(--color-mta); }
+.courseware-card[data-program="comptia"] { --program-color: var(--color-comptia); }
+.courseware-card[data-program="adobe"]   { --program-color: var(--color-adobe); }
+.courseware-card[data-program="ic3"]     { --program-color: var(--color-ic3); }
+.courseware-card[data-program="cisco"]   { --program-color: var(--color-cisco); }
+
+/* Accent bar */
+.card-accent-bar {
+  height: 3px;
+  width: 100%;
+  flex-shrink: 0;
+  transition: height 0.4s var(--mp-ease);
+}
+
+.courseware-card:hover .card-accent-bar {
+  height: 4px;
+}
+
+/* Shine overlay */
+.card-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.04) 45%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.04) 55%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: opacity 0.3s ease;
+}
+
+.courseware-card:hover .card-shine {
+  opacity: 1;
+  transform: translateX(100%);
+  transition: opacity 0.3s ease, transform 0.8s var(--mp-ease);
+}
+
+/* Card inner — the glass surface */
+.card-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 0.9rem;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.045) 0%,
+    rgba(255,255,255,0.018) 100%
+  );
+  border: 1px solid rgba(255,255,255,0.06);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.courseware-card:hover .card-inner {
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.07) 0%,
+    rgba(255,255,255,0.03) 100%
+  );
+  border-color: rgba(255,255,255,0.1);
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.4),
+    0 0 80px color-mix(in srgb, var(--program-color) 12%, transparent);
+}
+
+/* --- Header row: badge + featured --- */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 7px;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.featured-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.2);
+  padding: 0.2rem 0.55rem;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1.3;
+}
+
+.featured-badge i { font-size: 0.5rem; }
+
+/* --- Title --- */
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.32;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  letter-spacing: -0.015em;
+  transition: color 0.3s ease;
+}
+
+.courseware-card:hover .card-title { color: #fff; }
+
+/* --- Publisher --- */
+.card-publisher {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.card-publisher i { font-size: 0.65rem; opacity: 0.5; }
+.card-publisher span { opacity: 0.85; }
+
+/* --- Description --- */
+.card-description {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Format pills --- */
+.card-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.format-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 100px;
+  padding: 0.22rem 0.55rem;
+  transition: all 0.3s ease;
+  letter-spacing: 0.015em;
+}
+.format-pill i { font-size: 0.5rem; opacity: 0.55; }
+.courseware-card:hover .format-pill {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* --- Metrics block --- */
+.card-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Rating */
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.card-rating .stars {
+  display: inline-flex; align-items: center; gap: 1px; font-size: 0.78rem;
+}
+.card-rating .stars .fas.fa-star,
+.card-rating .stars .fas.fa-star-half-alt {
+  color: var(--mp-star);
+  filter: drop-shadow(0 0 4px rgba(251,191,36,0.35));
+}
+.card-rating .stars .far.fa-star { color: rgba(255,255,255,0.1); }
+.card-rating .rating-number {
+  font-size: 0.8rem; font-weight: 700; color: var(--mp-star);
+}
+.card-rating .review-count {
+  font-size: 0.68rem; color: var(--text-muted);
+}
+
+/* Coverage */
+.card-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.card-coverage .coverage-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-coverage .coverage-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.card-coverage .coverage-pct {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-coverage.coverage-elite .coverage-pct {
+  color: #10b981;
+}
+
+.card-coverage.coverage-high .coverage-pct {
+  color: var(--cyan);
+}
+
+.card-coverage .coverage-bar {
+  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-coverage .coverage-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--indigo), var(--cyan));
+  width: var(--coverage, 0%);
+  transition: width 1.2s var(--mp-ease);
+  position: relative;
+}
+
+.card-coverage.coverage-elite .coverage-fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.card-coverage .coverage-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: coverageShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes coverageShimmer {
+  0% { transform: translateX(-200%); }
+  100% { transform: translateX(200%); }
+}
+
+/* --- Bottom row: seal + CTA --- */
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  margin-top: auto;
+}
+
+.card-seal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.card-date {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ProCert Badge */
+.procert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: rgba(99,102,241,0.9);
+  padding: 0.25rem 0.55rem;
+  border-radius: 100px;
+  background: rgba(99,102,241,0.06);
+  border: 1px solid rgba(99,102,241,0.12);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+.procert-badge i { font-size: 0.55rem; }
+
+.procert-badge::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -100%;
+  width: 50%; height: 200%;
+  background: linear-gradient(105deg, transparent, rgba(99,102,241,0.12), transparent);
+  animation: badgeShimmer 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes badgeShimmer {
+  0% { left: -100%; }
+  30%, 100% { left: 200%; }
+}
+
+/* ===== THE CTA BUTTON ===== */
+.card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--program-color), color-mix(in srgb, var(--program-color) 70%, #fff));
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.35s var(--mp-ease);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--program-color) 25%, transparent);
+}
+
+.card-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-cta:hover::before { opacity: 1; }
+
+.card-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--program-color) 35%, transparent);
+}
+
+.card-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--program-color) 20%, transparent);
+}
+
+.card-cta i {
+  font-size: 0.6rem;
+  transition: transform 0.3s var(--mp-ease);
+}
+
+.card-cta:hover i {
+  transform: translateX(3px);
+}
+
+/* Glow pulse on idle */
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 4px 16px color-mix(in srgb, var(--program-color) 25%, transparent); }
+  50% { box-shadow: 0 4px 24px color-mix(in srgb, var(--program-color) 35%, transparent); }
+}
+
+.courseware-card:hover .card-cta {
+  animation: ctaPulse 2s ease-in-out infinite;
+}
+
+.courseware-card:hover .card-cta:hover {
+  animation: none;
+}
+
+/* ----------------------------------------------------------
+   4. List View Override
+   ---------------------------------------------------------- */
+.courseware-grid.list-view .courseware-card {
+  flex-direction: row;
+  border-radius: 16px;
+}
+.courseware-grid.list-view .card-accent-bar {
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+.courseware-grid.list-view .card-shine { display: none; }
+.courseware-grid.list-view .card-inner {
+  flex-direction: row; flex-wrap: wrap;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  gap: 0.5rem 1.25rem;
+  border-radius: 0 16px 16px 0;
+  border-left: none;
+}
+.courseware-grid.list-view .card-header { flex: 0 0 auto; }
+.courseware-grid.list-view .card-title {
+  flex: 1 0 200px; -webkit-line-clamp: 1; font-size: 0.95rem;
+}
+.courseware-grid.list-view .card-description { display: none; }
+.courseware-grid.list-view .card-metrics { flex: 0 0 auto; flex-direction: row; gap: 1.5rem; border-top: none; padding-top: 0; }
+.courseware-grid.list-view .card-coverage { min-width: 160px; }
+.courseware-grid.list-view .card-bottom {
+  border-top: none; border-left: 1px solid rgba(255,255,255,0.04);
+  padding-top: 0; padding-left: 1.25rem; margin-top: 0;
+  flex-direction: column; align-items: center;
+  min-width: 160px; flex-shrink: 0;
+}
+.courseware-grid.list-view .courseware-card:hover .card-inner {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 60px color-mix(in srgb, var(--program-color) 8%, transparent);
+}
+
+/* ----------------------------------------------------------
+   5. Footer
+   ---------------------------------------------------------- */
+.marketplace-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+.marketplace-note {
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.marketplace-note a {
+  color: var(--text-secondary); text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.marketplace-note a:hover { color: var(--text-primary); }
+
+/* ----------------------------------------------------------
+   6. No Results
+   ---------------------------------------------------------- */
+.no-results {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 5rem 1.5rem; gap: 1rem;
+}
+.no-results i { font-size: 2.5rem; color: var(--text-muted); opacity: 0.3; }
+.no-results p { font-size: 0.95rem; color: var(--text-secondary); }
+
+/* ----------------------------------------------------------
+   7. Detail Modal
+   ---------------------------------------------------------- */
+.courseware-modal {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.courseware-modal.active { opacity: 1; }
+.courseware-modal .modal-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+}
+.courseware-modal .modal-content {
+  position: relative;
+  max-width: 640px; width: 90%; max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(165deg, rgba(20,20,35,0.98), rgba(10,10,20,0.99));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px; padding: 2.5rem;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.4s var(--mp-ease);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+.courseware-modal.active .modal-content {
+  transform: translateY(0) scale(1);
+}
+.courseware-modal .modal-close {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text-secondary); cursor: pointer;
+  transition: all 0.2s ease; font-size: 0.85rem; z-index: 10;
+}
+.courseware-modal .modal-close:hover {
+  background: rgba(255,255,255,0.1); color: var(--text-primary);
+}
+.courseware-modal .modal-accent {
+  height: 3px; width: 60px; border-radius: 100px; margin-bottom: 1.5rem;
+}
+.courseware-modal .modal-badge {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 0.3rem 0.7rem;
+  border-radius: 8px; margin-bottom: 1rem;
+}
+.courseware-modal h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem; font-weight: 700; line-height: 1.3;
+  margin-bottom: 0.75rem; letter-spacing: -0.02em;
+}
+.courseware-modal .modal-meta-row {
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1.25rem;
+}
+.courseware-modal .modal-meta-row i { margin-right: 0.35rem; opacity: 0.5; }
+.courseware-modal .modal-desc {
+  font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.5rem;
+}
+.courseware-modal .modal-section { margin-bottom: 1.5rem; }
+.courseware-modal .modal-section h4 {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;
+}
+.courseware-modal .modal-metrics { display: flex; flex-direction: column; gap: 1rem; }
+.courseware-modal .modal-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.courseware-modal .tag-pill {
+  font-size: 0.72rem; font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 100px; padding: 0.3rem 0.7rem;
+}
+.courseware-modal .modal-footer {
+  margin-top: 1.5rem; padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.courseware-modal .modal-footer .procert-badge {
+  font-size: 0.75rem; padding: 0.5rem 1rem;
+}
+.courseware-modal .modal-content::-webkit-scrollbar { width: 6px; }
+.courseware-modal .modal-content::-webkit-scrollbar-track { background: transparent; }
+.courseware-modal .modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08); border-radius: 3px;
+}
+
+/* ----------------------------------------------------------
+   8. Responsive
+   ---------------------------------------------------------- */
+@media (max-width: 1280px) {
+  .courseware-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .courseware-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .filter-bar {
+    overflow-x: auto; flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-group { flex-shrink: 0; }
+
+  .courseware-grid.list-view .card-inner { flex-wrap: wrap; }
+  .courseware-grid.list-view .card-bottom { min-width: 130px; }
+}
+
+@media (max-width: 768px) {
+  .courseware-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+
+  #coursewareSearch { height: 50px; font-size: 0.9rem; }
+
+  .card-inner { padding: 1.15rem; gap: 0.75rem; }
+  .card-title { font-size: 0.92rem; }
+  .card-description { display: none; }
+  .card-badge { font-size: 0.55rem; padding: 0.2rem 0.5rem; }
+  .card-cta { padding: 0.5rem 0.85rem; font-size: 0.7rem; border-radius: 10px; }
+
+  .courseware-grid.list-view .courseware-card { flex-direction: column; }
+  .courseware-grid.list-view .card-accent-bar { width: 100%; height: 3px; position: static; }
+  .courseware-grid.list-view .card-inner {
+    flex-direction: column; align-items: flex-start;
+    border-radius: 0 0 16px 16px; border-left: 1px solid rgba(255,255,255,0.06);
+  }
+  .courseware-grid.list-view .card-bottom {
+    border-left: none; border-top: 1px solid rgba(255,255,255,0.04);
+    padding-left: 0; padding-top: 0.85rem;
+    flex-direction: row; min-width: unset; width: 100%;
+  }
+
+  .results-bar { flex-wrap: wrap; gap: 0.75rem; }
+
+  .courseware-modal .modal-content { padding: 1.75rem; border-radius: 20px; }
+}
+
+@media (max-width: 576px) {
+  .courseware-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+  .card-inner { padding: 1rem; }
+  .card-title { font-size: 0.9rem; }
+  .card-cta { width: 100%; justify-content: center; padding: 0.65rem 1rem; }
+  .card-bottom { flex-direction: column; gap: 0.6rem; }
+  .card-seal { flex-direction: row; align-items: center; gap: 0.75rem; }
+
+  .filter-group label { display: none; }
+
+  .courseware-modal .modal-content {
+    width: 95%; padding: 1.5rem; max-height: 90vh; border-radius: 16px;
+  }
+}
+
+/* ----------------------------------------------------------
+   9. Reduced Motion
+   ---------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .courseware-card,
+  .card-shine,
+  .card-inner,
+  .card-cta,
+  .card-accent-bar,
+  .coverage-fill,
+  .procert-badge::after,
+  .search-suggestions,
+  .courseware-modal,
+  .courseware-modal .modal-content {
+    transition: none !important;
+    animation: none !important;
+  }
+  .courseware-card.visible:hover,
+  .courseware-card:hover { transform: none; }
+  .card-shine { display: none; }
+}
