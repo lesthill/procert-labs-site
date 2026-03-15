@@ -383,9 +383,12 @@
       gsap.to(hintEl, { opacity: 0, duration: 0.3, ease: 'power2.out' });
     }
 
-    // Master timeline
+    // Master timeline — delay cleanup so canvas doesn't rip out mid-frame
     var tl = gsap.timeline({
-      onComplete: cleanup,
+      onComplete: function () {
+        // Let the fade fully settle before destroying anything
+        setTimeout(cleanup, 200);
+      },
     });
 
     // 1. Checkmark fades out
@@ -402,46 +405,57 @@
       ease: 'power2.in',
     }, 0);
 
-    // 2. Hexagon scales up (so camera fits through the tunnel)
+    // 2. Hexagon scales up (camera fits through the tunnel)
     tl.to(hexGroup.scale, {
       x: 10, y: 10, z: 10,
       duration: FLY_DURATION,
-      ease: 'power2.in',
+      ease: 'power2.inOut',
     }, 0.2);
 
-    // 3. Camera flies forward (through the hex center)
+    // 3. Camera flies forward — smooth in AND out, no dead stop
     tl.to(camera.position, {
       z: -30,
       duration: FLY_DURATION,
-      ease: 'power3.in',
+      ease: 'power2.inOut',
     }, 0.2);
 
-    // 4. Warp speed particles
+    // 4. Warp speed particles — smooth ramp up then ease down
     tl.to(warpState, {
       speed: 18,
       particleSize: 0.12,
-      duration: FLY_DURATION * 0.8,
-      ease: 'power3.in',
+      duration: FLY_DURATION * 0.5,
+      ease: 'power2.in',
     }, 0.2);
+    tl.to(warpState, {
+      speed: 6,
+      particleSize: 0.06,
+      duration: FLY_DURATION * 0.5,
+      ease: 'power2.out',
+    }, 0.2 + FLY_DURATION * 0.5);
 
-    // 5. Particle opacity ramp
+    // 5. Particle opacity: ramp up then fade
     tl.to(particleMat, {
       opacity: 1,
-      duration: 0.6,
+      duration: 0.5,
       ease: 'power2.in',
-    }, 0.4);
-
-    // 6. White flash at the midpoint of flying through
-    tl.to(flashOverlay, {
-      opacity: 0.7,
-      duration: 0.15,
-      ease: 'power2.in',
-    }, 0.2 + FLY_DURATION * 0.55);
-    tl.to(flashOverlay, {
+    }, 0.3);
+    tl.to(particleMat, {
       opacity: 0,
       duration: 0.6,
       ease: 'power2.out',
-    }, 0.2 + FLY_DURATION * 0.55 + 0.15);
+    }, 0.2 + FLY_DURATION - 0.5);
+
+    // 6. White flash at the midpoint — gentler
+    tl.to(flashOverlay, {
+      opacity: 0.5,
+      duration: 0.2,
+      ease: 'power1.in',
+    }, 0.2 + FLY_DURATION * 0.45);
+    tl.to(flashOverlay, {
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+    }, 0.2 + FLY_DURATION * 0.45 + 0.2);
 
     // 7. Text fades
     if (textEl) {
@@ -453,12 +467,12 @@
       }, 0.1);
     }
 
-    // 8. Entire splash fades out
+    // 8. Splash fades out — start earlier, take longer, buttery smooth
     tl.to(splashEl, {
       opacity: 0,
-      duration: 0.6,
-      ease: 'power2.inOut',
-    }, 0.2 + FLY_DURATION - 0.4);
+      duration: 1.0,
+      ease: 'power1.out',
+    }, 0.2 + FLY_DURATION * 0.5);
   }
 
   // ---------------------------------------------------------------
