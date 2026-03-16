@@ -1,328 +1,255 @@
 /**
- * ProCert Labs — Premium Splash Screen Fly-Through
- *
- * Cinematic drone-through-the-logo animation using Three.js + GSAP.
- * Expects global THREE and gsap to be loaded via CDN script tags.
- *
- * DOM contract:
- *   #splashScreen  — full-viewport overlay
- *   #splashCanvas  — Three.js render target
- *   .splash-text   — "ProCert Labs" label
- *   .splash-hint   — "Click anywhere to enter"
+ * ProCert Labs — Splash Fly-Through v3
+ * Clean. Precise. Understated confidence.
+ * Expects global THREE and gsap.
  */
 ;(function () {
   'use strict';
 
-  // ---------------------------------------------------------------
-  // Guards
-  // ---------------------------------------------------------------
   if (typeof THREE === 'undefined' || typeof gsap === 'undefined') {
-    console.warn('[splash] THREE or gsap not found — skipping splash.');
     var el = document.getElementById('splashScreen');
     if (el) el.style.display = 'none';
     return;
   }
 
-  // ---------------------------------------------------------------
-  // Constants
-  // ---------------------------------------------------------------
-  var BG            = 0x050510;
-  var INDIGO        = 0x6366f1;
-  var CYAN          = 0x06b6d4;
-  var WHITE         = 0xffffff;
-  var PARTICLE_COUNT = 2500;
-  var AUTO_DELAY     = 3000;   // ms before auto-trigger
-  var FLY_DURATION   = 1.8;    // seconds for the fly-through
-  var HEX_RADIUS     = 2.2;
-  var HEX_TUBE       = 0.16;   // tube radius for the hexagon frame edges
-  var HEX_DEPTH      = 1.0;    // how deep the hexagonal tunnel is
+  // ── Config ──────────────────────────────────────────────────────
+  var BG             = 0x050510;
+  var INDIGO         = 0x6366f1;
+  var VIOLET         = 0x8b5cf6;
+  var CYAN           = 0x06b6d4;
+  var WHITE          = 0xffffff;
+  var PARTICLE_COUNT = 1500;
+  var AUTO_DELAY     = 3500;
+  var FLY_DURATION   = 2.2;
 
-  // ---------------------------------------------------------------
-  // DOM references
-  // ---------------------------------------------------------------
-  var splashEl   = document.getElementById('splashScreen');
-  var canvas     = document.getElementById('splashCanvas');
-  var textEl     = splashEl ? splashEl.querySelector('.splash-text') : null;
-  var hintEl     = splashEl ? splashEl.querySelector('.splash-hint') : null;
+  // Hexagon: mathematically precise
+  var HEX_R     = 1.8;    // outer radius
+  var HEX_EDGE  = 0.055;  // tube thickness — thin and elegant
+  var HEX_DEPTH = 0.6;    // tunnel depth
 
-  if (!splashEl || !canvas) {
-    console.warn('[splash] Missing DOM elements — skipping.');
-    return;
-  }
+  // ── DOM ─────────────────────────────────────────────────────────
+  var splashEl = document.getElementById('splashScreen');
+  var canvas   = document.getElementById('splashCanvas');
+  var textEl   = splashEl ? splashEl.querySelector('.splash-text') : null;
+  var hintEl   = splashEl ? splashEl.querySelector('.splash-hint') : null;
+  if (!splashEl || !canvas) return;
 
-  // ---------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------
-  var triggered   = false;
-  var alive       = true;
-  var clock       = new THREE.Clock();
-  var mouseX      = 0;
-  var mouseY      = 0;
+  // ── State ───────────────────────────────────────────────────────
+  var triggered = false;
+  var alive     = true;
+  var clock     = new THREE.Clock();
+  var mouseX    = 0;
+  var mouseY    = 0;
 
-  // ---------------------------------------------------------------
-  // Renderer
-  // ---------------------------------------------------------------
-  var pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-  var renderer   = new THREE.WebGLRenderer({
-    canvas: canvas,
-    antialias: true,
-    alpha: false,
-  });
-  renderer.setPixelRatio(pixelRatio);
+  // ── Renderer ────────────────────────────────────────────────────
+  var dpr      = Math.min(window.devicePixelRatio || 1, 2);
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(dpr);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(BG, 1);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.6;
+  renderer.toneMappingExposure = 1.4;
 
-  // ---------------------------------------------------------------
-  // Scene & Camera
-  // ---------------------------------------------------------------
+  // ── Scene & Camera ──────────────────────────────────────────────
   var scene  = new THREE.Scene();
-  scene.fog  = new THREE.FogExp2(BG, 0.012);
-
-  var camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    200
-  );
+  // No fog — keep geometry crisp at all distances
+  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.set(0, 0, 6);
 
-  // ---------------------------------------------------------------
-  // Lighting
-  // ---------------------------------------------------------------
-  var ambientLight = new THREE.AmbientLight(WHITE, 0.5);
-  scene.add(ambientLight);
+  // ── Lighting — balanced, not overblown ──────────────────────────
+  scene.add(new THREE.AmbientLight(WHITE, 0.6));
 
-  var pointIndigo = new THREE.PointLight(INDIGO, 6, 30);
-  pointIndigo.position.set(-3, 2, 5);
-  scene.add(pointIndigo);
+  var keyLight = new THREE.DirectionalLight(WHITE, 1.2);
+  keyLight.position.set(2, 3, 5);
+  scene.add(keyLight);
 
-  var pointCyan = new THREE.PointLight(CYAN, 6, 30);
-  pointCyan.position.set(3, -2, 5);
-  scene.add(pointCyan);
+  var fillIndigo = new THREE.PointLight(INDIGO, 3, 15);
+  fillIndigo.position.set(-2.5, 1.5, 4);
+  scene.add(fillIndigo);
 
-  var rimLight = new THREE.PointLight(WHITE, 3, 20);
-  rimLight.position.set(0, 0, 9);
-  scene.add(rimLight);
+  var fillCyan = new THREE.PointLight(CYAN, 3, 15);
+  fillCyan.position.set(2.5, -1.5, 4);
+  scene.add(fillCyan);
 
-  // Front fill light so the hexagon pops
-  var frontFill = new THREE.PointLight(0x8b5cf6, 4, 15);
-  frontFill.position.set(0, 0, 3);
-  scene.add(frontFill);
+  var backLight = new THREE.PointLight(VIOLET, 2, 12);
+  backLight.position.set(0, 0, -2);
+  scene.add(backLight);
 
-  // ---------------------------------------------------------------
-  // Helper — hexagon vertex positions (flat-top)
-  // ---------------------------------------------------------------
-  function hexPoints(radius, z) {
-    var pts = [];
+  // ── Hexagon vertices — flat-top, mathematically exact ───────────
+  function hexVerts(r, z) {
+    var v = [];
     for (var i = 0; i < 6; i++) {
-      var angle = (Math.PI / 3) * i - Math.PI / 6; // flat-top orientation
-      pts.push(new THREE.Vector3(
-        radius * Math.cos(angle),
-        radius * Math.sin(angle),
+      var a = (Math.PI / 3) * i + Math.PI / 6; // pointy-top: clean, symmetric
+      v.push(new THREE.Vector3(
+        +(r * Math.cos(a)).toFixed(10),
+        +(r * Math.sin(a)).toFixed(10),
         z || 0
       ));
     }
-    return pts;
+    return v;
   }
 
-  // ---------------------------------------------------------------
-  // Hexagonal Frame (tube-based edges — hollow, fly-through-able)
-  // ---------------------------------------------------------------
-  var hexGroup = new THREE.Group();
-
+  // ── Materials ───────────────────────────────────────────────────
+  // Frame: clean metallic with subtle emissive — not glowing like a rave
   var frameMat = new THREE.MeshStandardMaterial({
-    color: 0x4f46e5,
+    color: 0x7c7fff,
     emissive: INDIGO,
-    emissiveIntensity: 1.2,
-    metalness: 0.9,
-    roughness: 0.15,
+    emissiveIntensity: 0.4,
+    metalness: 0.95,
+    roughness: 0.1,
   });
 
-  // Front ring, back ring, and connecting struts form the 3D tunnel frame
-  function buildHexRing(z) {
-    var pts = hexPoints(HEX_RADIUS, z);
-    var group = new THREE.Group();
-    for (var i = 0; i < 6; i++) {
-      var a = pts[i];
-      var b = pts[(i + 1) % 6];
-      var path = new THREE.LineCurve3(a, b);
-      var tubeGeo = new THREE.TubeGeometry(path, 4, HEX_TUBE, 32, false);
-      var mesh = new THREE.Mesh(tubeGeo, frameMat);
-      group.add(mesh);
+  // Checkmark: brighter but still refined
+  var checkMat = new THREE.MeshStandardMaterial({
+    color: 0x67e8f9,
+    emissive: CYAN,
+    emissiveIntensity: 0.8,
+    metalness: 0.85,
+    roughness: 0.12,
+  });
 
-      // Sphere at each vertex for perfectly smooth joins
-      var sphereGeo = new THREE.SphereGeometry(HEX_TUBE, 32, 32);
-      var sphere = new THREE.Mesh(sphereGeo, frameMat);
-      sphere.position.copy(a);
-      group.add(sphere);
-    }
-    return group;
+  // ── Build Hexagonal Frame ───────────────────────────────────────
+  var hexGroup   = new THREE.Group();
+  var TUBE_SIDES = 24;  // round cross-section
+  var TUBE_SEGS  = 2;   // segments along each edge
+
+  function makeEdge(a, b) {
+    var path = new THREE.LineCurve3(a, b);
+    return new THREE.TubeGeometry(path, TUBE_SEGS, HEX_EDGE, TUBE_SIDES, false);
   }
 
-  // Front and back hex rings
-  var frontRing = buildHexRing(HEX_DEPTH / 2);
-  hexGroup.add(frontRing);
+  function makeJoint(pos) {
+    var g = new THREE.SphereGeometry(HEX_EDGE, TUBE_SIDES, TUBE_SIDES);
+    var m = new THREE.Mesh(g, frameMat);
+    m.position.copy(pos);
+    return m;
+  }
 
-  var backRing = buildHexRing(-HEX_DEPTH / 2);
-  hexGroup.add(backRing);
+  // Front face, back face, and depth struts
+  var fv = hexVerts(HEX_R, HEX_DEPTH / 2);
+  var bv = hexVerts(HEX_R, -HEX_DEPTH / 2);
 
-  // Connecting struts between front and back at each vertex
-  var frontPts = hexPoints(HEX_RADIUS, HEX_DEPTH / 2);
-  var backPts  = hexPoints(HEX_RADIUS, -HEX_DEPTH / 2);
   for (var i = 0; i < 6; i++) {
-    var path = new THREE.LineCurve3(frontPts[i], backPts[i]);
-    var strutGeo = new THREE.TubeGeometry(path, 4, HEX_TUBE, 32, false);
-    var strut = new THREE.Mesh(strutGeo, frameMat);
-    hexGroup.add(strut);
+    var next = (i + 1) % 6;
+    // Front ring edge + joint
+    hexGroup.add(new THREE.Mesh(makeEdge(fv[i], fv[next]), frameMat));
+    hexGroup.add(makeJoint(fv[i]));
+    // Back ring edge + joint
+    hexGroup.add(new THREE.Mesh(makeEdge(bv[i], bv[next]), frameMat));
+    hexGroup.add(makeJoint(bv[i]));
+    // Depth strut connecting front to back
+    hexGroup.add(new THREE.Mesh(makeEdge(fv[i], bv[i]), frameMat));
   }
 
-  // Inner glow plane (additive, semi-transparent hex disc gives bloom feel)
-  var glowShape = new THREE.Shape();
-  var gPts = hexPoints(HEX_RADIUS * 0.95, 0);
-  glowShape.moveTo(gPts[0].x, gPts[0].y);
-  for (var g = 1; g < 6; g++) {
-    glowShape.lineTo(gPts[g].x, gPts[g].y);
-  }
-  glowShape.closePath();
-
-  // Cut a smaller hex hole so it is a ring / halo, not a solid fill
-  var holePoints = hexPoints(HEX_RADIUS * 0.7, 0);
-  var holePath = new THREE.Path();
-  holePath.moveTo(holePoints[0].x, holePoints[0].y);
-  for (var h = 1; h < 6; h++) {
-    holePath.lineTo(holePoints[h].x, holePoints[h].y);
-  }
-  holePath.closePath();
-  glowShape.holes.push(holePath);
-
-  var glowGeo = new THREE.ShapeGeometry(glowShape);
-  var glowMat = new THREE.MeshBasicMaterial({
+  // Subtle inner glow — very faint, just a breath of light inside the frame
+  var glowRingGeo = new THREE.RingGeometry(HEX_R * 0.6, HEX_R * 0.85, 6, 1);
+  // Rotate ring to align with hex orientation
+  glowRingGeo.rotateZ(Math.PI / 6);
+  var glowRingMat = new THREE.MeshBasicMaterial({
     color: INDIGO,
     transparent: true,
-    opacity: 0.25,
+    opacity: 0.08,
     side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   });
-  var glowMesh = new THREE.Mesh(glowGeo, glowMat);
-  glowMesh.position.z = 0;
-  hexGroup.add(glowMesh);
+  var glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
+  hexGroup.add(glowRing);
 
   scene.add(hexGroup);
 
-  // ---------------------------------------------------------------
-  // Checkmark
-  // ---------------------------------------------------------------
+  // ── Checkmark — centered, proportional to hex ───────────────────
   var checkGroup = new THREE.Group();
 
-  // Checkmark path: short stroke down-right, then long stroke up-right
+  // Proportional to hex radius: check fits ~55% of hex interior
+  var s = HEX_R * 0.38;
+  var cp1 = new THREE.Vector3(-0.50 * s, 0.05 * s, 0);
+  var cp2 = new THREE.Vector3(-0.15 * s, -0.45 * s, 0);
+  var cp3 = new THREE.Vector3(0.60 * s, 0.45 * s, 0);
+
   var checkPath = new THREE.CurvePath();
-  var p1 = new THREE.Vector3(-0.55, 0.0, 0);
-  var p2 = new THREE.Vector3(-0.15, -0.45, 0);
-  var p3 = new THREE.Vector3(0.65, 0.5, 0);
-  checkPath.add(new THREE.LineCurve3(p1, p2));
-  checkPath.add(new THREE.LineCurve3(p2, p3));
+  checkPath.add(new THREE.LineCurve3(cp1, cp2));
+  checkPath.add(new THREE.LineCurve3(cp2, cp3));
 
-  var checkGeo = new THREE.TubeGeometry(checkPath, 64, 0.1, 32, false);
-  var checkMat = new THREE.MeshStandardMaterial({
-    color: 0x22d3ee,
-    emissive: CYAN,
-    emissiveIntensity: 1.5,
-    metalness: 0.7,
-    roughness: 0.2,
+  var checkTube = HEX_EDGE * 1.4; // slightly thicker than frame
+  var checkGeo  = new THREE.TubeGeometry(checkPath, 48, checkTube, TUBE_SIDES, false);
+  checkGroup.add(new THREE.Mesh(checkGeo, checkMat));
+
+  // Joints at check vertices for clean ends
+  [cp1, cp2, cp3].forEach(function (p) {
+    var sg = new THREE.SphereGeometry(checkTube, TUBE_SIDES, TUBE_SIDES);
+    var sm = new THREE.Mesh(sg, checkMat);
+    sm.position.copy(p);
+    checkGroup.add(sm);
   });
-  var checkMesh = new THREE.Mesh(checkGeo, checkMat);
-  checkGroup.add(checkMesh);
 
-  // Checkmark glow halo (additive)
-  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 64, 0.25, 32, false);
+  // Very subtle check glow
   var checkGlowMat = new THREE.MeshBasicMaterial({
     color: CYAN,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.12,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   });
-  var checkGlow = new THREE.Mesh(checkGlowGeo, checkGlowMat);
-  checkGroup.add(checkGlow);
+  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 48, checkTube * 2.5, 16, false);
+  checkGroup.add(new THREE.Mesh(checkGlowGeo, checkGlowMat));
 
-  checkGroup.position.z = HEX_DEPTH / 2 + 0.05; // sit just in front of hexagon
+  checkGroup.position.z = HEX_DEPTH / 2 + 0.02;
   scene.add(checkGroup);
 
-  // ---------------------------------------------------------------
-  // Particles (tunnel / warp field)
-  // ---------------------------------------------------------------
-  var particlePositions = new Float32Array(PARTICLE_COUNT * 3);
-  var particleSpeeds    = new Float32Array(PARTICLE_COUNT);
-  var particleBaseAlpha = new Float32Array(PARTICLE_COUNT);
+  // ── Particles — sparse, elegant, not busy ───────────────────────
+  var pPos    = new Float32Array(PARTICLE_COUNT * 3);
+  var pSpeeds = new Float32Array(PARTICLE_COUNT);
 
-  // Distribute in a cylindrical tunnel stretching behind the logo
   for (var pi = 0; pi < PARTICLE_COUNT; pi++) {
-    var angle  = Math.random() * Math.PI * 2;
-    var radius = 0.4 + Math.random() * 4.5;
-    var z      = -Math.random() * 80 - 2;
-
-    particlePositions[pi * 3]     = Math.cos(angle) * radius;
-    particlePositions[pi * 3 + 1] = Math.sin(angle) * radius;
-    particlePositions[pi * 3 + 2] = z;
-
-    particleSpeeds[pi]    = 0.02 + Math.random() * 0.04;
-    particleBaseAlpha[pi] = 0.3 + Math.random() * 0.7;
+    var pa = Math.random() * Math.PI * 2;
+    var pr = 0.8 + Math.random() * 5;
+    pPos[pi * 3]     = Math.cos(pa) * pr;
+    pPos[pi * 3 + 1] = Math.sin(pa) * pr;
+    pPos[pi * 3 + 2] = -Math.random() * 80 - 3;
+    pSpeeds[pi]       = 0.015 + Math.random() * 0.03;
   }
 
-  var particleGeo = new THREE.BufferGeometry();
-  particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  var pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
 
-  var particleMat = new THREE.PointsMaterial({
-    color: 0xa5b4fc,
-    size: 0.05,
+  var pMat = new THREE.PointsMaterial({
+    color: 0x94a3b8,
+    size: 0.03,
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.4,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     sizeAttenuation: true,
   });
 
-  var particles = new THREE.Points(particleGeo, particleMat);
+  var particles = new THREE.Points(pGeo, pMat);
   scene.add(particles);
 
-  // Warp speed multiplier — animated by GSAP during fly-through
-  var warpState = { speed: 1, particleSize: 0.04 };
+  var warp = { speed: 1, size: 0.03 };
 
-  // ---------------------------------------------------------------
-  // White flash overlay (CSS-driven for simplicity)
-  // ---------------------------------------------------------------
-  var flashOverlay = document.createElement('div');
-  flashOverlay.style.cssText =
-    'position:fixed;top:0;left:0;width:100%;height:100%;' +
-    'background:#fff;opacity:0;pointer-events:none;z-index:10001;';
-  splashEl.appendChild(flashOverlay);
+  // ── Flash overlay ───────────────────────────────────────────────
+  var flash = document.createElement('div');
+  flash.style.cssText =
+    'position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10001;';
+  splashEl.appendChild(flash);
 
-  // ---------------------------------------------------------------
-  // Resize handler
-  // ---------------------------------------------------------------
+  // ── Resize ──────────────────────────────────────────────────────
   function onResize() {
     if (!alive) return;
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    camera.aspect = w / h;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+    renderer.setSize(window.innerWidth, window.innerHeight);
   }
   window.addEventListener('resize', onResize);
 
-  // Subtle parallax from mouse
   function onMouseMove(e) {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   }
   window.addEventListener('mousemove', onMouseMove);
 
-  // ---------------------------------------------------------------
-  // Render loop
-  // ---------------------------------------------------------------
+  // ── Render Loop ─────────────────────────────────────────────────
   var rafId;
 
   function animate() {
@@ -331,217 +258,163 @@
 
     var t = clock.getElapsedTime();
 
-    // -- Idle hover for hexagon --
+    // Idle: very gentle, precise float — not wobbly
     if (!triggered) {
-      hexGroup.rotation.y = Math.sin(t * 0.5) * 0.12;
-      hexGroup.rotation.x = Math.sin(t * 0.35) * 0.05;
-      hexGroup.position.y = Math.sin(t * 0.8) * 0.15;
+      hexGroup.rotation.y   = Math.sin(t * 0.4) * 0.06;
+      hexGroup.rotation.x   = Math.sin(t * 0.28) * 0.025;
+      hexGroup.position.y   = Math.sin(t * 0.6) * 0.08;
       checkGroup.rotation.y = hexGroup.rotation.y;
       checkGroup.rotation.x = hexGroup.rotation.x;
       checkGroup.position.y = hexGroup.position.y;
     }
 
-    // Subtle camera sway from mouse
-    camera.position.x += (mouseX * 0.3 - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY * 0.2 - camera.position.y) * 0.05;
+    // Mouse parallax — subtle
+    camera.position.x += (mouseX * 0.15 - camera.position.x) * 0.04;
+    camera.position.y += (-mouseY * 0.1 - camera.position.y) * 0.04;
 
-    // -- Particles drift / warp --
-    var positions = particleGeo.attributes.position.array;
+    // Particles
+    var pos = pGeo.attributes.position.array;
     for (var i = 0; i < PARTICLE_COUNT; i++) {
-      positions[i * 3 + 2] += particleSpeeds[i] * warpState.speed;
-
-      // Reset particles that pass the camera
-      if (positions[i * 3 + 2] > camera.position.z + 2) {
-        positions[i * 3 + 2] = camera.position.z - 60 - Math.random() * 30;
+      pos[i * 3 + 2] += pSpeeds[i] * warp.speed;
+      if (pos[i * 3 + 2] > camera.position.z + 2) {
+        pos[i * 3 + 2] = camera.position.z - 60 - Math.random() * 30;
         var a = Math.random() * Math.PI * 2;
-        var r = 0.4 + Math.random() * 4.5;
-        positions[i * 3]     = Math.cos(a) * r;
-        positions[i * 3 + 1] = Math.sin(a) * r;
+        var r = 0.8 + Math.random() * 5;
+        pos[i * 3]     = Math.cos(a) * r;
+        pos[i * 3 + 1] = Math.sin(a) * r;
       }
     }
-    particleGeo.attributes.position.needsUpdate = true;
+    pGeo.attributes.position.needsUpdate = true;
+    pMat.size = warp.size;
 
-    // Update particle size during warp
-    particleMat.size = warpState.particleSize;
-
-    // Lights follow camera loosely during fly-through
-    pointIndigo.position.z = camera.position.z + 1;
-    pointCyan.position.z   = camera.position.z + 1;
-    rimLight.position.z    = camera.position.z + 3;
+    // Lights track camera during fly-through
+    fillIndigo.position.z = camera.position.z + 2;
+    fillCyan.position.z   = camera.position.z + 2;
+    backLight.position.z  = camera.position.z - 3;
 
     renderer.render(scene, camera);
   }
 
-  // ---------------------------------------------------------------
-  // Trigger the fly-through
-  // ---------------------------------------------------------------
-  function triggerFlyThrough() {
+  // ── Fly-Through ─────────────────────────────────────────────────
+  function triggerFly() {
     if (triggered) return;
     triggered = true;
+    clearTimeout(autoTimer);
 
-    // Remove interaction listeners
-    splashEl.removeEventListener('click', triggerFlyThrough);
-    window.removeEventListener('wheel', triggerFlyThrough);
-    window.removeEventListener('touchstart', triggerFlyThrough);
+    splashEl.removeEventListener('click', triggerFly);
+    window.removeEventListener('wheel', triggerFly);
+    window.removeEventListener('touchstart', triggerFly);
 
-    // Fade hint immediately
-    if (hintEl) {
-      gsap.to(hintEl, { opacity: 0, duration: 0.3, ease: 'power2.out' });
+    if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
+
+    // Get the hero title position to animate text toward it
+    var heroTitle = document.querySelector('.hero-title');
+    var targetY   = 0;
+    if (heroTitle) {
+      var rect = heroTitle.getBoundingClientRect();
+      var currentRect = textEl ? textEl.getBoundingClientRect() : { top: window.innerHeight / 2 };
+      targetY = rect.top - currentRect.top;
     }
 
-    // Master timeline — delay cleanup so canvas doesn't rip out mid-frame
     var tl = gsap.timeline({
-      onComplete: function () {
-        // Let the fade fully settle before destroying anything
-        setTimeout(cleanup, 200);
-      },
+      onComplete: function () { setTimeout(cleanup, 150); },
     });
 
-    // 1. Checkmark fades out
+    // 1. Straighten hex rotation to 0 before fly (clean entry)
+    tl.to(hexGroup.rotation, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' }, 0);
+    tl.to(hexGroup.position, { y: 0, duration: 0.4, ease: 'power2.out' }, 0);
+    tl.to(checkGroup.rotation, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' }, 0);
+    tl.to(checkGroup.position, { y: 0, duration: 0.4, ease: 'power2.out' }, 0);
+
+    // 2. Checkmark dissolves
     tl.to(checkMat, {
-      opacity: 0,
-      emissiveIntensity: 0,
-      duration: 0.4,
-      ease: 'power2.in',
+      opacity: 0, emissiveIntensity: 0, duration: 0.5, ease: 'power2.in',
       onStart: function () { checkMat.transparent = true; },
-    }, 0);
-    tl.to(checkGlowMat, {
-      opacity: 0,
-      duration: 0.3,
-      ease: 'power2.in',
-    }, 0);
+    }, 0.2);
+    tl.to(checkGlowMat, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
 
-    // 2. Hexagon scales up (camera fits through the tunnel)
+    // 3. Hex scales uniformly — proportional throughout
     tl.to(hexGroup.scale, {
-      x: 10, y: 10, z: 10,
+      x: 12, y: 12, z: 12,
       duration: FLY_DURATION,
       ease: 'power2.inOut',
-    }, 0.2);
+    }, 0.4);
 
-    // 3. Camera flies forward — smooth in AND out, no dead stop
+    // 4. Camera flies through
     tl.to(camera.position, {
-      z: -30,
+      z: -25,
       duration: FLY_DURATION,
       ease: 'power2.inOut',
-    }, 0.2);
+    }, 0.4);
 
-    // 4. Warp speed particles — smooth ramp up then ease down
-    tl.to(warpState, {
-      speed: 18,
-      particleSize: 0.12,
-      duration: FLY_DURATION * 0.5,
-      ease: 'power2.in',
-    }, 0.2);
-    tl.to(warpState, {
-      speed: 6,
-      particleSize: 0.06,
-      duration: FLY_DURATION * 0.5,
-      ease: 'power2.out',
-    }, 0.2 + FLY_DURATION * 0.5);
+    // 5. Particles: gentle warp then ease down
+    tl.to(warp, { speed: 14, size: 0.08, duration: FLY_DURATION * 0.5, ease: 'power2.in' }, 0.4);
+    tl.to(warp, { speed: 4, size: 0.04, duration: FLY_DURATION * 0.5, ease: 'power2.out' }, 0.4 + FLY_DURATION * 0.5);
+    tl.to(pMat, { opacity: 0.8, duration: 0.5, ease: 'power2.in' }, 0.5);
+    tl.to(pMat, { opacity: 0, duration: 0.8, ease: 'power2.out' }, 0.4 + FLY_DURATION - 0.7);
 
-    // 5. Particle opacity: ramp up then fade
-    tl.to(particleMat, {
-      opacity: 1,
-      duration: 0.5,
-      ease: 'power2.in',
-    }, 0.3);
-    tl.to(particleMat, {
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-    }, 0.2 + FLY_DURATION - 0.5);
+    // 6. Soft flash at midpoint
+    var flashT = 0.4 + FLY_DURATION * 0.42;
+    tl.to(flash, { opacity: 0.35, duration: 0.2, ease: 'power1.in' }, flashT);
+    tl.to(flash, { opacity: 0, duration: 0.9, ease: 'power2.out' }, flashT + 0.2);
 
-    // 6. White flash at the midpoint — gentler
-    tl.to(flashOverlay, {
-      opacity: 0.5,
-      duration: 0.2,
-      ease: 'power1.in',
-    }, 0.2 + FLY_DURATION * 0.45);
-    tl.to(flashOverlay, {
-      opacity: 0,
-      duration: 0.8,
-      ease: 'power2.out',
-    }, 0.2 + FLY_DURATION * 0.45 + 0.2);
-
-    // 7. Text fades
+    // 7. Text moves toward hero title position, then fades
     if (textEl) {
       tl.to(textEl, {
+        y: targetY,
         opacity: 0,
-        y: -30,
-        duration: 0.5,
-        ease: 'power2.in',
-      }, 0.1);
+        scale: 0.6,
+        duration: 1.0,
+        ease: 'power2.inOut',
+      }, 0.2);
     }
 
-    // 8. Splash fades out — start earlier, take longer, buttery smooth
+    // 8. Splash fades — starts well before end, long duration
     tl.to(splashEl, {
       opacity: 0,
-      duration: 1.0,
+      duration: 1.2,
       ease: 'power1.out',
-    }, 0.2 + FLY_DURATION * 0.5);
+    }, 0.4 + FLY_DURATION * 0.4);
   }
 
-  // ---------------------------------------------------------------
-  // Cleanup — dispose Three.js resources, remove DOM
-  // ---------------------------------------------------------------
+  // ── Cleanup ─────────────────────────────────────────────────────
   function cleanup() {
     alive = false;
     cancelAnimationFrame(rafId);
-
-    // Dispose geometries and materials
     scene.traverse(function (obj) {
       if (obj.geometry) obj.geometry.dispose();
       if (obj.material) {
-        if (Array.isArray(obj.material)) {
-          obj.material.forEach(function (m) { m.dispose(); });
-        } else {
-          obj.material.dispose();
-        }
+        if (Array.isArray(obj.material)) obj.material.forEach(function (m) { m.dispose(); });
+        else obj.material.dispose();
       }
     });
-
     renderer.dispose();
-
-    // Remove from DOM
     splashEl.style.display = 'none';
     if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-    if (flashOverlay.parentNode) flashOverlay.parentNode.removeChild(flashOverlay);
-
-    // Remove listeners
+    if (flash.parentNode) flash.parentNode.removeChild(flash);
     window.removeEventListener('resize', onResize);
     window.removeEventListener('mousemove', onMouseMove);
-
-    // Dispatch custom event so the rest of the site knows the splash is done
     window.dispatchEvent(new CustomEvent('splashComplete'));
   }
 
-  // ---------------------------------------------------------------
-  // Event bindings
-  // ---------------------------------------------------------------
-  splashEl.addEventListener('click', triggerFlyThrough);
-  window.addEventListener('wheel', triggerFlyThrough, { once: true });
-  window.addEventListener('touchstart', triggerFlyThrough, { once: true });
+  // ── Bindings ────────────────────────────────────────────────────
+  splashEl.addEventListener('click', triggerFly);
+  window.addEventListener('wheel', triggerFly, { once: true });
+  window.addEventListener('touchstart', triggerFly, { once: true });
+  var autoTimer = setTimeout(triggerFly, AUTO_DELAY);
 
-  // Auto-trigger after delay
-  var autoTimer = setTimeout(function () {
-    triggerFlyThrough();
-  }, AUTO_DELAY);
-
-  // ---------------------------------------------------------------
-  // Kick off
-  // ---------------------------------------------------------------
-  // Subtle entrance: fade the splash elements in
-  gsap.fromTo(splashEl, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
+  // ── Entrance ────────────────────────────────────────────────────
+  gsap.fromTo(splashEl, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' });
   if (textEl) {
     gsap.fromTo(textEl,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: 'power2.out' }
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
     );
   }
   if (hintEl) {
     gsap.fromTo(hintEl,
       { opacity: 0 },
-      { opacity: 0.6, duration: 0.8, delay: 1.2, ease: 'power2.out' }
+      { opacity: 0.4, duration: 0.6, delay: 1.5, ease: 'power2.out' }
     );
   }
 
