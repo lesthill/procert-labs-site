@@ -304,19 +304,21 @@
     // 6. Splash background fades — text stays visible above it
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
-    // 7. TEXT FLIGHT — the money shot.
-    // Uses transform (GPU composited) for zero-jitter movement.
+    // 7. TEXT FLIGHT — pixel-perfect landing, no ghosting, no overshoot.
+    // transform-origin: left top so scale shrinks toward the left edge.
+    // power2.inOut — guaranteed no overshoot (power3+ can overshoot).
+    // Crossfade: flying text fades while nav text fades in simultaneously.
     if (textEl && navTextTarget) {
       var startRect = textEl.getBoundingClientRect();
-      var endFontSize = parseFloat(getComputedStyle(navLogoText).fontSize);
       var startFontSize = parseFloat(getComputedStyle(textEl).fontSize);
+      var endFontSize = parseFloat(getComputedStyle(navLogoText).fontSize);
       var scaleRatio = endFontSize / startFontSize;
 
-      // Calculate the exact pixel delta from start center to destination center
-      var dx = (navTextTarget.left + navTextTarget.width / 2) - (startRect.left + startRect.width / 2);
-      var dy = (navTextTarget.top + navTextTarget.height / 2) - (startRect.top + startRect.height / 2);
+      // Align left edges and vertical centers for perfect registration
+      var dx = navTextTarget.left - startRect.left;
+      var dy = (navTextTarget.top + navTextTarget.height / 2) - (startRect.top + startRect.height * scaleRatio / 2);
 
-      // Pull text out of splash so it survives the fade
+      // Pull text out of splash
       textEl.style.position = 'fixed';
       textEl.style.zIndex = '100000';
       textEl.style.pointerEvents = 'none';
@@ -327,31 +329,40 @@
       textEl.style.transition = 'none';
       textEl.style.willChange = 'transform, opacity';
       textEl.style.transform = 'translate(0, 0) scale(1)';
-      textEl.style.transformOrigin = 'center center';
+      textEl.style.transformOrigin = 'left top';
       document.body.appendChild(textEl);
 
       var flyStart = 0.3 + FLY_DURATION * 0.45;
-      var flyDur = 1.2;
+      var flyDur = 1.1;
 
-      // Single transform tween: translate + scale. No layout properties. Zero jitter.
+      // Fly: translate + scale with left-top origin. power2 = no overshoot.
       tl.to(textEl, {
         x: dx,
         y: dy,
         scale: scaleRatio,
         duration: flyDur,
-        ease: 'power3.inOut',
+        ease: 'power2.inOut',
       }, flyStart);
 
-      // At arrival: instant crossfade
+      // Simultaneous crossfade: flying text fades out AS nav text fades in.
+      // Both visible briefly at ~50% opacity = seamless blend, no ghost.
+      var fadeStart = flyStart + flyDur - 0.3;
       tl.to(textEl, {
         opacity: 0,
-        duration: 0.12,
-        ease: 'none',
+        duration: 0.3,
+        ease: 'power1.out',
         onComplete: function () {
           if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
-          if (navLogoText) navLogoText.style.opacity = '1';
         },
-      }, flyStart + flyDur - 0.12);
+      }, fadeStart);
+
+      if (navLogoText) {
+        tl.fromTo(navLogoText,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: 'power1.in' },
+          fadeStart
+        );
+      }
     } else if (textEl) {
       tl.to(textEl, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
       if (navLogoText) tl.set(navLogoText, { opacity: 1 }, 0.3 + FLY_DURATION);
