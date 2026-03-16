@@ -19,7 +19,7 @@
   var CYAN           = 0x06b6d4;
   var WHITE          = 0xffffff;
   var PARTICLE_COUNT = 1500;
-  var AUTO_DELAY     = 3500;
+  var AUTO_DELAY     = 2200;
   var FLY_DURATION   = 2.2;
 
   // Hexagon: mathematically precise
@@ -307,13 +307,17 @@
 
     if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
 
-    // Get the hero title position to animate text toward it
-    var heroTitle = document.querySelector('.hero-title');
+    // Get the nav logo position to fly text into it
+    var navLogo   = document.querySelector('.nav-logo');
+    var targetX   = 0;
     var targetY   = 0;
-    if (heroTitle) {
-      var rect = heroTitle.getBoundingClientRect();
-      var currentRect = textEl ? textEl.getBoundingClientRect() : { top: window.innerHeight / 2 };
-      targetY = rect.top - currentRect.top;
+    var targetScale = 0.3;
+    if (navLogo && textEl) {
+      var logoRect = navLogo.getBoundingClientRect();
+      var textRect = textEl.getBoundingClientRect();
+      targetX = (logoRect.left + logoRect.width / 2) - (textRect.left + textRect.width / 2);
+      targetY = (logoRect.top + logoRect.height / 2) - (textRect.top + textRect.height / 2);
+      targetScale = logoRect.height / textRect.height;
     }
 
     var tl = gsap.timeline({
@@ -358,15 +362,16 @@
     tl.to(flash, { opacity: 0.35, duration: 0.2, ease: 'power1.in' }, flashT);
     tl.to(flash, { opacity: 0, duration: 0.9, ease: 'power2.out' }, flashT + 0.2);
 
-    // 7. Text moves toward hero title position, then fades
+    // 7. Text flies to nav logo position (top-left)
     if (textEl) {
       tl.to(textEl, {
+        x: targetX,
         y: targetY,
+        scale: targetScale,
         opacity: 0,
-        scale: 0.6,
-        duration: 1.0,
+        duration: 1.4,
         ease: 'power2.inOut',
-      }, 0.2);
+      }, 0.3);
     }
 
     // 8. Splash fades — starts well before end, long duration
@@ -375,6 +380,19 @@
       duration: 1.2,
       ease: 'power1.out',
     }, 0.4 + FLY_DURATION * 0.4);
+
+    // 9. After splash clears, fade in the hero content with "The Gold Standard"
+    var heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+      heroContent.style.opacity = '0';
+      heroContent.style.transform = 'translateY(20px)';
+      tl.to(heroContent, {
+        opacity: 1,
+        y: 0,
+        duration: 1.0,
+        ease: 'power2.out',
+      }, 0.4 + FLY_DURATION * 0.55);
+    }
   }
 
   // ── Cleanup ─────────────────────────────────────────────────────
@@ -404,17 +422,18 @@
   var autoTimer = setTimeout(triggerFly, AUTO_DELAY);
 
   // ── Entrance ────────────────────────────────────────────────────
-  gsap.fromTo(splashEl, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' });
+  // Fast entrance — no waiting around
+  gsap.fromTo(splashEl, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
   if (textEl) {
     gsap.fromTo(textEl,
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.6, delay: 0.1, ease: 'power2.out' }
     );
   }
   if (hintEl) {
     gsap.fromTo(hintEl,
       { opacity: 0 },
-      { opacity: 0.4, duration: 0.6, delay: 1.5, ease: 'power2.out' }
+      { opacity: 0.35, duration: 0.5, delay: 0.8, ease: 'power2.out' }
     );
   }
 
