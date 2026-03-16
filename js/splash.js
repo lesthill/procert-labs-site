@@ -301,68 +301,72 @@
     tl.to(flash, { opacity: 0.3, duration: 0.2, ease: 'power1.in' }, flashT);
     tl.to(flash, { opacity: 0, duration: 0.8, ease: 'power2.out' }, flashT + 0.2);
 
-    // 6. Splash background fades — text stays visible above it
+    // 6. Splash fades (including original text — that's fine, we use a clone)
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
-    // 7. TEXT FLIGHT — GPU-accelerated, zero jitter.
-    console.warn('[SPLASH DEBUG] textEl=' + !!textEl + ' navTextTarget=' + JSON.stringify(navTextTarget));
+    // 7. TEXT FLIGHT — clone approach so splash fade can't interfere
     if (textEl && navTextTarget) {
-      console.warn('[SPLASH DEBUG] FLIGHT PATH ENTERED');
+      // Snapshot position while text is still visible and in the splash
       var startRect = textEl.getBoundingClientRect();
+      var startStyles = getComputedStyle(textEl);
 
-      // Pull text out of splash so it survives the fade
-      textEl.style.position = 'fixed';
-      textEl.style.zIndex = '100000';
-      textEl.style.pointerEvents = 'none';
-      textEl.style.margin = '0';
-      textEl.style.whiteSpace = 'nowrap';
-      textEl.style.transition = 'none';
-      textEl.style.willChange = 'transform, opacity';
-      textEl.style.left = startRect.left + 'px';
-      textEl.style.top = startRect.top + 'px';
-      textEl.style.transform = 'translate(0, 0) scale(1)';
-      textEl.style.transformOrigin = 'left top';
-      document.body.appendChild(textEl);
+      // Create a clone, position it identically, add to body
+      var flyText = document.createElement('div');
+      flyText.textContent = textEl.textContent;
+      flyText.style.cssText =
+        'position:fixed;z-index:100000;pointer-events:none;' +
+        'font-family:' + startStyles.fontFamily + ';' +
+        'font-size:' + startStyles.fontSize + ';' +
+        'font-weight:' + startStyles.fontWeight + ';' +
+        'color:#fff;white-space:nowrap;' +
+        'text-shadow:0 0 30px rgba(99,102,241,0.35),0 0 60px rgba(139,92,246,0.15);' +
+        'letter-spacing:' + startStyles.letterSpacing + ';' +
+        'left:' + startRect.left + 'px;' +
+        'top:' + startRect.top + 'px;' +
+        'transform:translate(0,0) scale(1);' +
+        'transform-origin:left top;' +
+        'will-change:transform,opacity;';
+      document.body.appendChild(flyText);
 
-      // Calculate the transform needed to land exactly on nav text
+      // Calculate flight vector
       var dx = navTextTarget.left - startRect.left;
       var dy = navTextTarget.top - startRect.top;
       var scaleRatio = navTextTarget.height / startRect.height;
 
       var flyStart = 0.3 + FLY_DURATION * 0.45;
-      var flyDur   = 1.2;
+      var flyDur = 1.2;
 
-      // Single transform tween — GPU composited, no layout thrash, no jitter
-      tl.to(textEl, {
-        transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scaleRatio + ')',
+      // Fly the clone to the nav
+      tl.to(flyText, {
+        transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scaleRatio + ')',
         duration: flyDur,
         ease: 'power3.inOut',
       }, flyStart);
 
-      // Crossfade: start fading at 70% of flight so landing is invisible
-      tl.to(textEl, {
+      // Crossfade near the end
+      tl.to(flyText, {
         opacity: 0,
-        duration: flyDur * 0.35,
+        duration: flyDur * 0.25,
         ease: 'power2.in',
-      }, flyStart + flyDur * 0.65);
+      }, flyStart + flyDur * 0.75);
 
-      // Reveal nav text at the same moment splash text starts fading
+      // Reveal real nav text
       tl.call(function () {
         if (navLogoText) navLogoText.style.opacity = '1';
-      }, null, flyStart + flyDur * 0.65);
+      }, null, flyStart + flyDur * 0.75);
 
-      // Remove splash text after animation
+      // Cleanup clone
       tl.call(function () {
-        if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
-      }, null, flyStart + flyDur + 0.1);
-    } else if (textEl) {
-      tl.to(textEl, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
+        if (flyText.parentNode) flyText.parentNode.removeChild(flyText);
+      }, null, flyStart + flyDur + 0.2);
+    } else {
+      // Fallback: just reveal nav text after splash
       if (navLogoText) {
         tl.set(navLogoText, { opacity: 1 }, 0.3 + FLY_DURATION);
       }
     }
 
-    // 8. Hero content fades in after text flight
+    // 8. Hero content fades in
     var heroContent = document.querySelector('.hero-content');
     if (heroContent) {
       tl.to(heroContent, {
