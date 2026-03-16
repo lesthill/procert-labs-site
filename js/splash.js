@@ -307,10 +307,13 @@
 
     if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
 
-    // Get the nav logo position to fly text into it
-    var navLogo   = document.querySelector('.nav-logo');
-    var targetX   = 0;
-    var targetY   = 0;
+    // Hide the nav logo — we'll reveal it when the splash text arrives
+    var navLogo = document.querySelector('.nav-logo');
+    if (navLogo) navLogo.style.opacity = '0';
+
+    // Calculate where to fly the splash text
+    var targetX     = 0;
+    var targetY     = 0;
     var targetScale = 0.3;
     if (navLogo && textEl) {
       var logoRect = navLogo.getBoundingClientRect();
@@ -362,16 +365,35 @@
     tl.to(flash, { opacity: 0.35, duration: 0.2, ease: 'power1.in' }, flashT);
     tl.to(flash, { opacity: 0, duration: 0.9, ease: 'power2.out' }, flashT + 0.2);
 
-    // 7. Text flies to nav logo position (top-left)
+    // 7. Text flies to nav logo position — stays fully visible until it lands
+    var textFlyDuration = 1.4;
+    var textFlyStart    = 0.3;
     if (textEl) {
+      // Fly to the logo position — NO opacity fade during flight
       tl.to(textEl, {
         x: targetX,
         y: targetY,
         scale: targetScale,
+        duration: textFlyDuration,
+        ease: 'power3.inOut',
+      }, textFlyStart);
+
+      // At the very end of flight: quick fade out splash text + fade in nav logo
+      // This is the Pixar handoff — one disappears as the other appears, same spot
+      tl.to(textEl, {
         opacity: 0,
-        duration: 1.4,
-        ease: 'power2.inOut',
-      }, 0.3);
+        duration: 0.25,
+        ease: 'power1.out',
+      }, textFlyStart + textFlyDuration - 0.25);
+    }
+
+    // Nav logo fades in exactly as splash text fades out
+    if (navLogo) {
+      tl.to(navLogo, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power1.in',
+      }, textFlyStart + textFlyDuration - 0.3);
     }
 
     // 8. Splash fades — starts well before end, long duration
