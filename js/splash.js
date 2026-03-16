@@ -305,7 +305,9 @@
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
     // 7. TEXT FLIGHT — GPU-accelerated, zero jitter.
+    console.warn('[SPLASH DEBUG] textEl=' + !!textEl + ' navTextTarget=' + JSON.stringify(navTextTarget));
     if (textEl && navTextTarget) {
+      console.warn('[SPLASH DEBUG] FLIGHT PATH ENTERED');
       var startRect = textEl.getBoundingClientRect();
 
       // Pull text out of splash so it survives the fade
