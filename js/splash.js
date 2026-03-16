@@ -1,7 +1,6 @@
 /**
- * ProCert Labs — Splash Fly-Through v3
- * Clean. Precise. Understated confidence.
- * Expects global THREE and gsap.
+ * ProCert Labs — Splash Fly-Through v4
+ * The logo physically flies to the nav. Pixar-smooth.
  */
 ;(function () {
   'use strict';
@@ -20,19 +19,44 @@
   var WHITE          = 0xffffff;
   var PARTICLE_COUNT = 1500;
   var AUTO_DELAY     = 2200;
-  var FLY_DURATION   = 2.2;
-
-  // Hexagon: mathematically precise
-  var HEX_R     = 1.8;    // outer radius
-  var HEX_EDGE  = 0.055;  // tube thickness — thin and elegant
-  var HEX_DEPTH = 0.6;    // tunnel depth
+  var FLY_DURATION   = 2.0;
+  var HEX_R          = 1.8;
+  var HEX_EDGE       = 0.055;
+  var HEX_DEPTH      = 0.6;
 
   // ── DOM ─────────────────────────────────────────────────────────
   var splashEl = document.getElementById('splashScreen');
   var canvas   = document.getElementById('splashCanvas');
   var textEl   = splashEl ? splashEl.querySelector('.splash-text') : null;
   var hintEl   = splashEl ? splashEl.querySelector('.splash-hint') : null;
+  var navLogo  = document.querySelector('.nav-logo');
   if (!splashEl || !canvas) return;
+
+  // Hide nav logo until the flying logo arrives
+  if (navLogo) navLogo.style.opacity = '0';
+
+  // ── Create the flying logo element ──────────────────────────────
+  // This is a 2D copy of the nav logo SVG that starts large & centered,
+  // then physically flies to the nav position after the 3D scene ends.
+  var flyingLogo = document.createElement('div');
+  flyingLogo.id = 'flyingLogo';
+  flyingLogo.innerHTML =
+    '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M20 2L37 11V29L20 38L3 29V11L20 2Z" stroke="url(#flyGrad)" stroke-width="2" fill="none"/>' +
+      '<path d="M20 8L31 14V26L20 32L9 26V14L20 8Z" fill="url(#flyGrad)" opacity="0.15"/>' +
+      '<path d="M14 18L18 22L26 14" stroke="url(#flyGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<defs><linearGradient id="flyGrad" x1="3" y1="2" x2="37" y2="38">' +
+        '<stop offset="0%" stop-color="#6366f1"/>' +
+        '<stop offset="100%" stop-color="#06b6d4"/>' +
+      '</linearGradient></defs>' +
+    '</svg>';
+  flyingLogo.style.cssText =
+    'position:fixed;z-index:100000;pointer-events:none;' +
+    'width:80px;height:80px;' +
+    'top:50%;left:50%;transform:translate(-50%,-50%);' +
+    'opacity:0;';
+  flyingLogo.querySelector('svg').style.cssText = 'width:100%;height:100%;';
+  document.body.appendChild(flyingLogo);
 
   // ── State ───────────────────────────────────────────────────────
   var triggered = false;
@@ -52,34 +76,29 @@
 
   // ── Scene & Camera ──────────────────────────────────────────────
   var scene  = new THREE.Scene();
-  // No fog — keep geometry crisp at all distances
   var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.set(0, 0, 6);
 
-  // ── Lighting — balanced, not overblown ──────────────────────────
+  // ── Lighting ────────────────────────────────────────────────────
   scene.add(new THREE.AmbientLight(WHITE, 0.6));
-
   var keyLight = new THREE.DirectionalLight(WHITE, 1.2);
   keyLight.position.set(2, 3, 5);
   scene.add(keyLight);
-
   var fillIndigo = new THREE.PointLight(INDIGO, 3, 15);
   fillIndigo.position.set(-2.5, 1.5, 4);
   scene.add(fillIndigo);
-
   var fillCyan = new THREE.PointLight(CYAN, 3, 15);
   fillCyan.position.set(2.5, -1.5, 4);
   scene.add(fillCyan);
-
   var backLight = new THREE.PointLight(VIOLET, 2, 12);
   backLight.position.set(0, 0, -2);
   scene.add(backLight);
 
-  // ── Hexagon vertices — flat-top, mathematically exact ───────────
+  // ── Hex geometry helpers ────────────────────────────────────────
   function hexVerts(r, z) {
     var v = [];
     for (var i = 0; i < 6; i++) {
-      var a = (Math.PI / 3) * i + Math.PI / 6; // pointy-top: clean, symmetric
+      var a = (Math.PI / 3) * i + Math.PI / 6;
       v.push(new THREE.Vector3(
         +(r * Math.cos(a)).toFixed(10),
         +(r * Math.sin(a)).toFixed(10),
@@ -89,152 +108,100 @@
     return v;
   }
 
-  // ── Materials ───────────────────────────────────────────────────
-  // Frame: clean metallic with subtle emissive — not glowing like a rave
-  var frameMat = new THREE.MeshStandardMaterial({
-    color: 0x7c7fff,
-    emissive: INDIGO,
-    emissiveIntensity: 0.4,
-    metalness: 0.95,
-    roughness: 0.1,
-  });
-
-  // Checkmark: brighter but still refined
-  var checkMat = new THREE.MeshStandardMaterial({
-    color: 0x67e8f9,
-    emissive: CYAN,
-    emissiveIntensity: 0.8,
-    metalness: 0.85,
-    roughness: 0.12,
-  });
-
-  // ── Build Hexagonal Frame ───────────────────────────────────────
-  var hexGroup   = new THREE.Group();
-  var TUBE_SIDES = 24;  // round cross-section
-  var TUBE_SEGS  = 2;   // segments along each edge
+  var TUBE_SIDES = 24;
+  var TUBE_SEGS  = 2;
 
   function makeEdge(a, b) {
-    var path = new THREE.LineCurve3(a, b);
-    return new THREE.TubeGeometry(path, TUBE_SEGS, HEX_EDGE, TUBE_SIDES, false);
+    return new THREE.TubeGeometry(new THREE.LineCurve3(a, b), TUBE_SEGS, HEX_EDGE, TUBE_SIDES, false);
   }
 
-  function makeJoint(pos) {
-    var g = new THREE.SphereGeometry(HEX_EDGE, TUBE_SIDES, TUBE_SIDES);
-    var m = new THREE.Mesh(g, frameMat);
-    m.position.copy(pos);
-    return m;
-  }
+  // ── Materials ───────────────────────────────────────────────────
+  var frameMat = new THREE.MeshStandardMaterial({
+    color: 0x7c7fff, emissive: INDIGO, emissiveIntensity: 0.4,
+    metalness: 0.95, roughness: 0.1,
+  });
+  var checkMat = new THREE.MeshStandardMaterial({
+    color: 0x67e8f9, emissive: CYAN, emissiveIntensity: 0.8,
+    metalness: 0.85, roughness: 0.12,
+  });
 
-  // Front face, back face, and depth struts
+  // ── Build Hex Frame ─────────────────────────────────────────────
+  var hexGroup = new THREE.Group();
   var fv = hexVerts(HEX_R, HEX_DEPTH / 2);
   var bv = hexVerts(HEX_R, -HEX_DEPTH / 2);
 
   for (var i = 0; i < 6; i++) {
     var next = (i + 1) % 6;
-    // Front ring edge + joint
     hexGroup.add(new THREE.Mesh(makeEdge(fv[i], fv[next]), frameMat));
-    hexGroup.add(makeJoint(fv[i]));
-    // Back ring edge + joint
     hexGroup.add(new THREE.Mesh(makeEdge(bv[i], bv[next]), frameMat));
-    hexGroup.add(makeJoint(bv[i]));
-    // Depth strut connecting front to back
     hexGroup.add(new THREE.Mesh(makeEdge(fv[i], bv[i]), frameMat));
+    // Sphere joints
+    var sg = new THREE.SphereGeometry(HEX_EDGE, TUBE_SIDES, TUBE_SIDES);
+    var sf = new THREE.Mesh(sg, frameMat); sf.position.copy(fv[i]); hexGroup.add(sf);
+    var sb = new THREE.Mesh(sg.clone(), frameMat); sb.position.copy(bv[i]); hexGroup.add(sb);
   }
 
-  // Subtle inner glow — very faint, just a breath of light inside the frame
+  // Subtle inner glow
   var glowRingGeo = new THREE.RingGeometry(HEX_R * 0.6, HEX_R * 0.85, 6, 1);
-  // Rotate ring to align with hex orientation
   glowRingGeo.rotateZ(Math.PI / 6);
   var glowRingMat = new THREE.MeshBasicMaterial({
-    color: INDIGO,
-    transparent: true,
-    opacity: 0.08,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
+    color: INDIGO, transparent: true, opacity: 0.08,
+    side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
   });
-  var glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
-  hexGroup.add(glowRing);
-
+  hexGroup.add(new THREE.Mesh(glowRingGeo, glowRingMat));
   scene.add(hexGroup);
 
-  // ── Checkmark — centered, proportional to hex ───────────────────
+  // ── Checkmark ───────────────────────────────────────────────────
   var checkGroup = new THREE.Group();
-
-  // Proportional to hex radius: check fits ~55% of hex interior
   var s = HEX_R * 0.38;
   var cp1 = new THREE.Vector3(-0.50 * s, 0.05 * s, 0);
   var cp2 = new THREE.Vector3(-0.15 * s, -0.45 * s, 0);
   var cp3 = new THREE.Vector3(0.60 * s, 0.45 * s, 0);
-
   var checkPath = new THREE.CurvePath();
   checkPath.add(new THREE.LineCurve3(cp1, cp2));
   checkPath.add(new THREE.LineCurve3(cp2, cp3));
 
-  var checkTube = HEX_EDGE * 1.4; // slightly thicker than frame
-  var checkGeo  = new THREE.TubeGeometry(checkPath, 48, checkTube, TUBE_SIDES, false);
-  checkGroup.add(new THREE.Mesh(checkGeo, checkMat));
-
-  // Joints at check vertices for clean ends
+  var checkTube = HEX_EDGE * 1.4;
+  checkGroup.add(new THREE.Mesh(new THREE.TubeGeometry(checkPath, 48, checkTube, TUBE_SIDES, false), checkMat));
   [cp1, cp2, cp3].forEach(function (p) {
-    var sg = new THREE.SphereGeometry(checkTube, TUBE_SIDES, TUBE_SIDES);
-    var sm = new THREE.Mesh(sg, checkMat);
-    sm.position.copy(p);
-    checkGroup.add(sm);
+    var m = new THREE.Mesh(new THREE.SphereGeometry(checkTube, TUBE_SIDES, TUBE_SIDES), checkMat);
+    m.position.copy(p); checkGroup.add(m);
   });
 
-  // Very subtle check glow
   var checkGlowMat = new THREE.MeshBasicMaterial({
-    color: CYAN,
-    transparent: true,
-    opacity: 0.12,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
+    color: CYAN, transparent: true, opacity: 0.12,
+    blending: THREE.AdditiveBlending, depthWrite: false,
   });
-  var checkGlowGeo = new THREE.TubeGeometry(checkPath, 48, checkTube * 2.5, 16, false);
-  checkGroup.add(new THREE.Mesh(checkGlowGeo, checkGlowMat));
-
+  checkGroup.add(new THREE.Mesh(new THREE.TubeGeometry(checkPath, 48, checkTube * 2.5, 16, false), checkGlowMat));
   checkGroup.position.z = HEX_DEPTH / 2 + 0.02;
   scene.add(checkGroup);
 
-  // ── Particles — sparse, elegant, not busy ───────────────────────
-  var pPos    = new Float32Array(PARTICLE_COUNT * 3);
+  // ── Particles ───────────────────────────────────────────────────
+  var pPos = new Float32Array(PARTICLE_COUNT * 3);
   var pSpeeds = new Float32Array(PARTICLE_COUNT);
-
   for (var pi = 0; pi < PARTICLE_COUNT; pi++) {
     var pa = Math.random() * Math.PI * 2;
     var pr = 0.8 + Math.random() * 5;
-    pPos[pi * 3]     = Math.cos(pa) * pr;
+    pPos[pi * 3] = Math.cos(pa) * pr;
     pPos[pi * 3 + 1] = Math.sin(pa) * pr;
     pPos[pi * 3 + 2] = -Math.random() * 80 - 3;
-    pSpeeds[pi]       = 0.015 + Math.random() * 0.03;
+    pSpeeds[pi] = 0.015 + Math.random() * 0.03;
   }
-
   var pGeo = new THREE.BufferGeometry();
   pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-
   var pMat = new THREE.PointsMaterial({
-    color: 0x94a3b8,
-    size: 0.03,
-    transparent: true,
-    opacity: 0.4,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    sizeAttenuation: true,
+    color: 0x94a3b8, size: 0.03, transparent: true, opacity: 0.4,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
   });
-
-  var particles = new THREE.Points(pGeo, pMat);
-  scene.add(particles);
-
+  scene.add(new THREE.Points(pGeo, pMat));
   var warp = { speed: 1, size: 0.03 };
 
-  // ── Flash overlay ───────────────────────────────────────────────
+  // ── Flash ───────────────────────────────────────────────────────
   var flash = document.createElement('div');
-  flash.style.cssText =
-    'position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10001;';
+  flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10001;';
   splashEl.appendChild(flash);
 
-  // ── Resize ──────────────────────────────────────────────────────
+  // ── Resize / Mouse ──────────────────────────────────────────────
   function onResize() {
     if (!alive) return;
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -242,7 +209,6 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   window.addEventListener('resize', onResize);
-
   function onMouseMove(e) {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -251,28 +217,23 @@
 
   // ── Render Loop ─────────────────────────────────────────────────
   var rafId;
-
   function animate() {
     if (!alive) return;
     rafId = requestAnimationFrame(animate);
-
     var t = clock.getElapsedTime();
 
-    // Idle: very gentle, precise float — not wobbly
     if (!triggered) {
-      hexGroup.rotation.y   = Math.sin(t * 0.4) * 0.06;
-      hexGroup.rotation.x   = Math.sin(t * 0.28) * 0.025;
-      hexGroup.position.y   = Math.sin(t * 0.6) * 0.08;
+      hexGroup.rotation.y = Math.sin(t * 0.4) * 0.06;
+      hexGroup.rotation.x = Math.sin(t * 0.28) * 0.025;
+      hexGroup.position.y = Math.sin(t * 0.6) * 0.08;
       checkGroup.rotation.y = hexGroup.rotation.y;
       checkGroup.rotation.x = hexGroup.rotation.x;
       checkGroup.position.y = hexGroup.position.y;
     }
 
-    // Mouse parallax — subtle
     camera.position.x += (mouseX * 0.15 - camera.position.x) * 0.04;
     camera.position.y += (-mouseY * 0.1 - camera.position.y) * 0.04;
 
-    // Particles
     var pos = pGeo.attributes.position.array;
     for (var i = 0; i < PARTICLE_COUNT; i++) {
       pos[i * 3 + 2] += pSpeeds[i] * warp.speed;
@@ -280,17 +241,16 @@
         pos[i * 3 + 2] = camera.position.z - 60 - Math.random() * 30;
         var a = Math.random() * Math.PI * 2;
         var r = 0.8 + Math.random() * 5;
-        pos[i * 3]     = Math.cos(a) * r;
+        pos[i * 3] = Math.cos(a) * r;
         pos[i * 3 + 1] = Math.sin(a) * r;
       }
     }
     pGeo.attributes.position.needsUpdate = true;
     pMat.size = warp.size;
 
-    // Lights track camera during fly-through
     fillIndigo.position.z = camera.position.z + 2;
-    fillCyan.position.z   = camera.position.z + 2;
-    backLight.position.z  = camera.position.z - 3;
+    fillCyan.position.z = camera.position.z + 2;
+    backLight.position.z = camera.position.z - 3;
 
     renderer.render(scene, camera);
   }
@@ -307,118 +267,53 @@
 
     if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
 
-    // Hide the nav logo — we'll reveal it when the splash text arrives
-    var navLogo = document.querySelector('.nav-logo');
-    if (navLogo) navLogo.style.opacity = '0';
-
-    // Calculate where to fly the splash text
-    var targetX     = 0;
-    var targetY     = 0;
-    var targetScale = 0.3;
-    if (navLogo && textEl) {
-      var logoRect = navLogo.getBoundingClientRect();
-      var textRect = textEl.getBoundingClientRect();
-      targetX = (logoRect.left + logoRect.width / 2) - (textRect.left + textRect.width / 2);
-      targetY = (logoRect.top + logoRect.height / 2) - (textRect.top + textRect.height / 2);
-      targetScale = logoRect.height / textRect.height;
-    }
-
     var tl = gsap.timeline({
-      onComplete: function () { setTimeout(cleanup, 150); },
+      onComplete: function () {
+        // Start the logo flight AFTER the 3D scene is done
+        flyLogoToNav();
+      },
     });
 
-    // 1. Straighten hex rotation to 0 before fly (clean entry)
-    tl.to(hexGroup.rotation, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' }, 0);
-    tl.to(hexGroup.position, { y: 0, duration: 0.4, ease: 'power2.out' }, 0);
-    tl.to(checkGroup.rotation, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' }, 0);
-    tl.to(checkGroup.position, { y: 0, duration: 0.4, ease: 'power2.out' }, 0);
+    // 1. Straighten hex
+    tl.to(hexGroup.rotation, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' }, 0);
+    tl.to(hexGroup.position, { y: 0, duration: 0.3, ease: 'power2.out' }, 0);
+    tl.to(checkGroup.rotation, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' }, 0);
+    tl.to(checkGroup.position, { y: 0, duration: 0.3, ease: 'power2.out' }, 0);
 
     // 2. Checkmark dissolves
     tl.to(checkMat, {
-      opacity: 0, emissiveIntensity: 0, duration: 0.5, ease: 'power2.in',
+      opacity: 0, emissiveIntensity: 0, duration: 0.4, ease: 'power2.in',
       onStart: function () { checkMat.transparent = true; },
-    }, 0.2);
-    tl.to(checkGlowMat, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
+    }, 0.15);
+    tl.to(checkGlowMat, { opacity: 0, duration: 0.3, ease: 'power2.in' }, 0.15);
 
-    // 3. Hex scales uniformly — proportional throughout
-    tl.to(hexGroup.scale, {
-      x: 12, y: 12, z: 12,
-      duration: FLY_DURATION,
-      ease: 'power2.inOut',
-    }, 0.4);
+    // 3. Hex scales + camera flies through
+    tl.to(hexGroup.scale, { x: 12, y: 12, z: 12, duration: FLY_DURATION, ease: 'power2.inOut' }, 0.3);
+    tl.to(camera.position, { z: -25, duration: FLY_DURATION, ease: 'power2.inOut' }, 0.3);
 
-    // 4. Camera flies through
-    tl.to(camera.position, {
-      z: -25,
-      duration: FLY_DURATION,
-      ease: 'power2.inOut',
-    }, 0.4);
+    // 4. Particles warp
+    tl.to(warp, { speed: 14, size: 0.08, duration: FLY_DURATION * 0.5, ease: 'power2.in' }, 0.3);
+    tl.to(warp, { speed: 4, size: 0.04, duration: FLY_DURATION * 0.5, ease: 'power2.out' }, 0.3 + FLY_DURATION * 0.5);
+    tl.to(pMat, { opacity: 0.8, duration: 0.4, ease: 'power2.in' }, 0.4);
+    tl.to(pMat, { opacity: 0, duration: 0.7, ease: 'power2.out' }, 0.3 + FLY_DURATION - 0.6);
 
-    // 5. Particles: gentle warp then ease down
-    tl.to(warp, { speed: 14, size: 0.08, duration: FLY_DURATION * 0.5, ease: 'power2.in' }, 0.4);
-    tl.to(warp, { speed: 4, size: 0.04, duration: FLY_DURATION * 0.5, ease: 'power2.out' }, 0.4 + FLY_DURATION * 0.5);
-    tl.to(pMat, { opacity: 0.8, duration: 0.5, ease: 'power2.in' }, 0.5);
-    tl.to(pMat, { opacity: 0, duration: 0.8, ease: 'power2.out' }, 0.4 + FLY_DURATION - 0.7);
+    // 5. Flash
+    var flashT = 0.3 + FLY_DURATION * 0.42;
+    tl.to(flash, { opacity: 0.3, duration: 0.2, ease: 'power1.in' }, flashT);
+    tl.to(flash, { opacity: 0, duration: 0.8, ease: 'power2.out' }, flashT + 0.2);
 
-    // 6. Soft flash at midpoint
-    var flashT = 0.4 + FLY_DURATION * 0.42;
-    tl.to(flash, { opacity: 0.35, duration: 0.2, ease: 'power1.in' }, flashT);
-    tl.to(flash, { opacity: 0, duration: 0.9, ease: 'power2.out' }, flashT + 0.2);
-
-    // 7. Text flies to nav logo position — stays fully visible until it lands
-    var textFlyDuration = 1.4;
-    var textFlyStart    = 0.3;
+    // 6. Text fades early
     if (textEl) {
-      // Fly to the logo position — NO opacity fade during flight
-      tl.to(textEl, {
-        x: targetX,
-        y: targetY,
-        scale: targetScale,
-        duration: textFlyDuration,
-        ease: 'power3.inOut',
-      }, textFlyStart);
-
-      // At the very end of flight: quick fade out splash text + fade in nav logo
-      // This is the Pixar handoff — one disappears as the other appears, same spot
-      tl.to(textEl, {
-        opacity: 0,
-        duration: 0.25,
-        ease: 'power1.out',
-      }, textFlyStart + textFlyDuration - 0.25);
+      tl.to(textEl, { opacity: 0, y: -20, duration: 0.5, ease: 'power2.in' }, 0.1);
     }
 
-    // Nav logo fades in exactly as splash text fades out
-    if (navLogo) {
-      tl.to(navLogo, {
-        opacity: 1,
-        duration: 0.3,
-        ease: 'power1.in',
-      }, textFlyStart + textFlyDuration - 0.3);
-    }
-
-    // 8. Splash fades — starts well before end, long duration
-    tl.to(splashEl, {
-      opacity: 0,
-      duration: 1.2,
-      ease: 'power1.out',
-    }, 0.4 + FLY_DURATION * 0.4);
-
-    // 9. After splash clears, fade in the hero content with "The Gold Standard"
-    var heroContent = document.querySelector('.hero-content');
-    if (heroContent) {
-      heroContent.style.opacity = '0';
-      heroContent.style.transform = 'translateY(20px)';
-      tl.to(heroContent, {
-        opacity: 1,
-        y: 0,
-        duration: 1.0,
-        ease: 'power2.out',
-      }, 0.4 + FLY_DURATION * 0.55);
-    }
+    // 7. Splash fades revealing site — but flying logo stays above
+    tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
   }
 
-  // ── Cleanup ─────────────────────────────────────────────────────
-  function cleanup() {
+  // ── Flying Logo → Nav ───────────────────────────────────────────
+  function flyLogoToNav() {
+    // Clean up the 3D scene
     alive = false;
     cancelAnimationFrame(rafId);
     scene.traverse(function (obj) {
@@ -434,7 +329,47 @@
     if (flash.parentNode) flash.parentNode.removeChild(flash);
     window.removeEventListener('resize', onResize);
     window.removeEventListener('mousemove', onMouseMove);
-    window.dispatchEvent(new CustomEvent('splashComplete'));
+
+    // Show the flying logo at center screen
+    flyingLogo.style.opacity = '1';
+
+    // Calculate where the nav logo lives
+    var navTarget = navLogo ? navLogo.getBoundingClientRect() : { left: 20, top: 20, width: 36, height: 36 };
+    var logoIconEl = navLogo ? navLogo.querySelector('.logo-icon') : null;
+    if (logoIconEl) {
+      navTarget = logoIconEl.getBoundingClientRect();
+    }
+
+    // Animate: center → nav position
+    var tl2 = gsap.timeline({
+      onComplete: function () {
+        // Reveal the real nav logo, remove the flying one
+        if (navLogo) {
+          gsap.to(navLogo, { opacity: 1, duration: 0.2, ease: 'power1.out' });
+        }
+        setTimeout(function () {
+          if (flyingLogo.parentNode) flyingLogo.parentNode.removeChild(flyingLogo);
+        }, 250);
+
+        // Fade in hero content
+        var heroContent = document.querySelector('.hero-content');
+        if (heroContent) {
+          gsap.to(heroContent, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
+        }
+
+        window.dispatchEvent(new CustomEvent('splashComplete'));
+      },
+    });
+
+    // The flight: shrink from 80px centered → land at exact nav icon position
+    tl2.to(flyingLogo, {
+      left: navTarget.left + navTarget.width / 2,
+      top: navTarget.top + navTarget.height / 2,
+      width: navTarget.width,
+      height: navTarget.height,
+      duration: 0.9,
+      ease: 'power3.inOut',
+    }, 0);
   }
 
   // ── Bindings ────────────────────────────────────────────────────
@@ -444,21 +379,13 @@
   var autoTimer = setTimeout(triggerFly, AUTO_DELAY);
 
   // ── Entrance ────────────────────────────────────────────────────
-  // Fast entrance — no waiting around
   gsap.fromTo(splashEl, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
   if (textEl) {
-    gsap.fromTo(textEl,
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.6, delay: 0.1, ease: 'power2.out' }
-    );
+    gsap.fromTo(textEl, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.1, ease: 'power2.out' });
   }
   if (hintEl) {
-    gsap.fromTo(hintEl,
-      { opacity: 0 },
-      { opacity: 0.35, duration: 0.5, delay: 0.8, ease: 'power2.out' }
-    );
+    gsap.fromTo(hintEl, { opacity: 0 }, { opacity: 0.35, duration: 0.5, delay: 0.8, ease: 'power2.out' });
   }
 
   animate();
-
 })();
