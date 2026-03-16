@@ -55,7 +55,10 @@
   // ── Scene & Camera ──────────────────────────────────────────────
   var scene  = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
-  camera.position.set(0, 0, 6);
+  // Push camera back on small screens so hex fits centered
+  var isMobile = window.innerWidth < 768;
+  var camZ = isMobile ? 8.5 : 6;
+  camera.position.set(0, 0, camZ);
 
   // ── Lighting ────────────────────────────────────────────────────
   scene.add(new THREE.AmbientLight(WHITE, 0.6));
