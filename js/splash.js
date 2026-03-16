@@ -305,8 +305,6 @@
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
     // 7. TEXT FLIGHT — GPU-accelerated, zero jitter.
-    // Use transform (translate + scale) instead of left/top/fontSize for buttery 60fps.
-    // Crossfade starts early so any sub-pixel difference is invisible.
     if (textEl && navTextTarget) {
       var startRect = textEl.getBoundingClientRect();
 
