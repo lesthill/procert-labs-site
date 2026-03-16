@@ -32,31 +32,9 @@
   var navLogo  = document.querySelector('.nav-logo');
   if (!splashEl || !canvas) return;
 
-  // Hide nav logo until the flying logo arrives
-  if (navLogo) navLogo.style.opacity = '0';
-
-  // ── Create the flying logo element ──────────────────────────────
-  // This is a 2D copy of the nav logo SVG that starts large & centered,
-  // then physically flies to the nav position after the 3D scene ends.
-  var flyingLogo = document.createElement('div');
-  flyingLogo.id = 'flyingLogo';
-  flyingLogo.innerHTML =
-    '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<path d="M20 2L37 11V29L20 38L3 29V11L20 2Z" stroke="url(#flyGrad)" stroke-width="2" fill="none"/>' +
-      '<path d="M20 8L31 14V26L20 32L9 26V14L20 8Z" fill="url(#flyGrad)" opacity="0.15"/>' +
-      '<path d="M14 18L18 22L26 14" stroke="url(#flyGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<defs><linearGradient id="flyGrad" x1="3" y1="2" x2="37" y2="38">' +
-        '<stop offset="0%" stop-color="#6366f1"/>' +
-        '<stop offset="100%" stop-color="#06b6d4"/>' +
-      '</linearGradient></defs>' +
-    '</svg>';
-  flyingLogo.style.cssText =
-    'position:fixed;z-index:100000;pointer-events:none;' +
-    'width:80px;height:80px;' +
-    'top:50%;left:50%;transform:translate(-50%,-50%);' +
-    'opacity:0;';
-  flyingLogo.querySelector('svg').style.cssText = 'width:100%;height:100%;';
-  document.body.appendChild(flyingLogo);
+  // Nav logo text starts hidden — the splash text will fly up and become it
+  var navLogoText = navLogo ? navLogo.querySelector('.logo-text') : null;
+  if (navLogoText) navLogoText.style.opacity = '0';
 
   // ── State ───────────────────────────────────────────────────────
   var triggered = false;
@@ -267,10 +245,35 @@
 
     if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
 
+    // Calculate where the nav logo TEXT lives for the text flight
+    var navTextTarget = navLogoText ? navLogoText.getBoundingClientRect() : null;
+    var textStartRect = textEl ? textEl.getBoundingClientRect() : null;
+    var txtTargetX = 0, txtTargetY = 0, txtTargetScale = 0.35;
+    if (navTextTarget && textStartRect) {
+      txtTargetX = (navTextTarget.left + navTextTarget.width / 2) - (textStartRect.left + textStartRect.width / 2);
+      txtTargetY = (navTextTarget.top + navTextTarget.height / 2) - (textStartRect.top + textStartRect.height / 2);
+      txtTargetScale = navTextTarget.height / textStartRect.height;
+    }
+
     var tl = gsap.timeline({
       onComplete: function () {
-        // Start the logo flight AFTER the 3D scene is done
-        flyLogoToNav();
+        // Clean up 3D
+        alive = false;
+        cancelAnimationFrame(rafId);
+        scene.traverse(function (obj) {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (Array.isArray(obj.material)) obj.material.forEach(function (m) { m.dispose(); });
+            else obj.material.dispose();
+          }
+        });
+        renderer.dispose();
+        splashEl.style.display = 'none';
+        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+        if (flash.parentNode) flash.parentNode.removeChild(flash);
+        window.removeEventListener('resize', onResize);
+        window.removeEventListener('mousemove', onMouseMove);
+        window.dispatchEvent(new CustomEvent('splashComplete'));
       },
     });
 
@@ -302,74 +305,56 @@
     tl.to(flash, { opacity: 0.3, duration: 0.2, ease: 'power1.in' }, flashT);
     tl.to(flash, { opacity: 0, duration: 0.8, ease: 'power2.out' }, flashT + 0.2);
 
-    // 6. Text fades early
-    if (textEl) {
-      tl.to(textEl, { opacity: 0, y: -20, duration: 0.5, ease: 'power2.in' }, 0.1);
-    }
-
-    // 7. Splash fades revealing site — but flying logo stays above
+    // 6. Splash background fades — text stays visible above it
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
-  }
 
-  // ── Flying Logo → Nav ───────────────────────────────────────────
-  function flyLogoToNav() {
-    // Clean up the 3D scene
-    alive = false;
-    cancelAnimationFrame(rafId);
-    scene.traverse(function (obj) {
-      if (obj.geometry) obj.geometry.dispose();
-      if (obj.material) {
-        if (Array.isArray(obj.material)) obj.material.forEach(function (m) { m.dispose(); });
-        else obj.material.dispose();
-      }
-    });
-    renderer.dispose();
-    splashEl.style.display = 'none';
-    if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-    if (flash.parentNode) flash.parentNode.removeChild(flash);
-    window.removeEventListener('resize', onResize);
-    window.removeEventListener('mousemove', onMouseMove);
+    // 7. TEXT FLIGHT: "ProCert Labs" flies from center to nav logo text position
+    // It stays fully visible during the fly-through, then after splash fades,
+    // it flies up to become the nav branding. Pixar smooth.
+    if (textEl) {
+      // Pull text out of splash so it survives the splash fade
+      textEl.style.position = 'fixed';
+      textEl.style.zIndex = '100000';
+      textEl.style.pointerEvents = 'none';
+      var r = textEl.getBoundingClientRect();
+      textEl.style.left = r.left + 'px';
+      textEl.style.top = r.top + 'px';
+      textEl.style.margin = '0';
+      textEl.style.transform = 'none';
+      document.body.appendChild(textEl);
 
-    // Show the flying logo at center screen
-    flyingLogo.style.opacity = '1';
+      // Fly to nav text position
+      var flyStart = 0.3 + FLY_DURATION * 0.5;
+      tl.to(textEl, {
+        left: navTextTarget ? navTextTarget.left : 60,
+        top: navTextTarget ? navTextTarget.top : 20,
+        scale: txtTargetScale,
+        duration: 1.0,
+        ease: 'power3.inOut',
+        transformOrigin: 'left center',
+      }, flyStart);
 
-    // Calculate where the nav logo lives
-    var navTarget = navLogo ? navLogo.getBoundingClientRect() : { left: 20, top: 20, width: 36, height: 36 };
-    var logoIconEl = navLogo ? navLogo.querySelector('.logo-icon') : null;
-    if (logoIconEl) {
-      navTarget = logoIconEl.getBoundingClientRect();
+      // At the end: fade out splash text, fade in real nav text
+      tl.to(textEl, {
+        opacity: 0,
+        duration: 0.2,
+        ease: 'power1.out',
+        onComplete: function () {
+          if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
+          if (navLogoText) {
+            gsap.to(navLogoText, { opacity: 1, duration: 0.25, ease: 'power1.out' });
+          }
+        },
+      }, flyStart + 0.85);
     }
 
-    // Animate: center → nav position
-    var tl2 = gsap.timeline({
-      onComplete: function () {
-        // Reveal the real nav logo, remove the flying one
-        if (navLogo) {
-          gsap.to(navLogo, { opacity: 1, duration: 0.2, ease: 'power1.out' });
-        }
-        setTimeout(function () {
-          if (flyingLogo.parentNode) flyingLogo.parentNode.removeChild(flyingLogo);
-        }, 250);
-
-        // Fade in hero content
-        var heroContent = document.querySelector('.hero-content');
-        if (heroContent) {
-          gsap.to(heroContent, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
-        }
-
-        window.dispatchEvent(new CustomEvent('splashComplete'));
-      },
-    });
-
-    // The flight: shrink from 80px centered → land at exact nav icon position
-    tl2.to(flyingLogo, {
-      left: navTarget.left + navTarget.width / 2,
-      top: navTarget.top + navTarget.height / 2,
-      width: navTarget.width,
-      height: navTarget.height,
-      duration: 0.9,
-      ease: 'power3.inOut',
-    }, 0);
+    // 8. Hero content fades in after text flight
+    var heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+      tl.to(heroContent, {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+      }, 0.3 + FLY_DURATION * 0.55);
+    }
   }
 
   // ── Bindings ────────────────────────────────────────────────────
