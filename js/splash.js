@@ -248,15 +248,8 @@
 
     if (hintEl) gsap.to(hintEl, { opacity: 0, duration: 0.3 });
 
-    // Calculate where the nav logo TEXT lives for the text flight
+    // Snapshot the nav logo text destination
     var navTextTarget = navLogoText ? navLogoText.getBoundingClientRect() : null;
-    var textStartRect = textEl ? textEl.getBoundingClientRect() : null;
-    var txtTargetX = 0, txtTargetY = 0, txtTargetScale = 0.35;
-    if (navTextTarget && textStartRect) {
-      txtTargetX = (navTextTarget.left + navTextTarget.width / 2) - (textStartRect.left + textStartRect.width / 2);
-      txtTargetY = (navTextTarget.top + navTextTarget.height / 2) - (textStartRect.top + textStartRect.height / 2);
-      txtTargetScale = navTextTarget.height / textStartRect.height;
-    }
 
     var tl = gsap.timeline({
       onComplete: function () {
@@ -311,44 +304,60 @@
     // 6. Splash background fades — text stays visible above it
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
-    // 7. TEXT FLIGHT: "ProCert Labs" flies from center to nav logo text position
-    // It stays fully visible during the fly-through, then after splash fades,
-    // it flies up to become the nav branding. Pixar smooth.
-    if (textEl) {
-      // Pull text out of splash so it survives the splash fade
+    // 7. TEXT FLIGHT — the money shot.
+    // "ProCert Labs" physically flies from center screen to the nav logo text.
+    // It must arrive at the EXACT size, EXACT position. Pixel perfect. Then crossfade.
+    if (textEl && navTextTarget) {
+      // Snapshot current position before pulling out of splash
+      var startRect = textEl.getBoundingClientRect();
+      var startFontSize = parseFloat(getComputedStyle(textEl).fontSize);
+      var endFontSize   = parseFloat(getComputedStyle(navLogoText).fontSize);
+
+      // Pull text out of splash into body so it survives the splash fade
       textEl.style.position = 'fixed';
       textEl.style.zIndex = '100000';
       textEl.style.pointerEvents = 'none';
-      var r = textEl.getBoundingClientRect();
-      textEl.style.left = r.left + 'px';
-      textEl.style.top = r.top + 'px';
       textEl.style.margin = '0';
       textEl.style.transform = 'none';
+      textEl.style.left = startRect.left + 'px';
+      textEl.style.top = startRect.top + 'px';
+      textEl.style.width = startRect.width + 'px';
+      textEl.style.whiteSpace = 'nowrap';
+      textEl.style.transition = 'none';
       document.body.appendChild(textEl);
 
-      // Fly to nav text position
-      var flyStart = 0.3 + FLY_DURATION * 0.5;
+      var flyStart = 0.3 + FLY_DURATION * 0.45;
+      var flyDur   = 1.2;
+
+      // Animate position, size, and font to land exactly on nav text
       tl.to(textEl, {
-        left: navTextTarget ? navTextTarget.left : 60,
-        top: navTextTarget ? navTextTarget.top : 20,
-        scale: txtTargetScale,
-        duration: 1.0,
+        left: navTextTarget.left,
+        top: navTextTarget.top,
+        width: navTextTarget.width,
+        fontSize: endFontSize,
+        letterSpacing: '0em',
+        duration: flyDur,
         ease: 'power3.inOut',
-        transformOrigin: 'left center',
       }, flyStart);
 
-      // At the end: fade out splash text, fade in real nav text
+      // At arrival: instant crossfade — splash text vanishes, nav text appears
       tl.to(textEl, {
         opacity: 0,
-        duration: 0.2,
-        ease: 'power1.out',
+        duration: 0.15,
+        ease: 'none',
         onComplete: function () {
           if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
           if (navLogoText) {
-            gsap.to(navLogoText, { opacity: 1, duration: 0.25, ease: 'power1.out' });
+            navLogoText.style.opacity = '1';
           }
         },
-      }, flyStart + 0.85);
+      }, flyStart + flyDur - 0.15);
+    } else if (textEl) {
+      // Fallback: just fade text out
+      tl.to(textEl, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
+      if (navLogoText) {
+        tl.set(navLogoText, { opacity: 1 }, 0.3 + FLY_DURATION);
+      }
     }
 
     // 8. Hero content fades in after text flight
