@@ -304,56 +304,58 @@
     // 6. Splash background fades — text stays visible above it
     tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
 
-    // 7. TEXT FLIGHT — the money shot.
-    // "ProCert Labs" physically flies from center screen to the nav logo text.
-    // It must arrive at the EXACT size, EXACT position. Pixel perfect. Then crossfade.
+    // 7. TEXT FLIGHT — GPU-accelerated, zero jitter.
+    // Use transform (translate + scale) instead of left/top/fontSize for buttery 60fps.
+    // Crossfade starts early so any sub-pixel difference is invisible.
     if (textEl && navTextTarget) {
-      // Snapshot current position before pulling out of splash
       var startRect = textEl.getBoundingClientRect();
-      var startFontSize = parseFloat(getComputedStyle(textEl).fontSize);
-      var endFontSize   = parseFloat(getComputedStyle(navLogoText).fontSize);
 
-      // Pull text out of splash into body so it survives the splash fade
+      // Pull text out of splash so it survives the fade
       textEl.style.position = 'fixed';
       textEl.style.zIndex = '100000';
       textEl.style.pointerEvents = 'none';
       textEl.style.margin = '0';
-      textEl.style.transform = 'none';
-      textEl.style.left = startRect.left + 'px';
-      textEl.style.top = startRect.top + 'px';
-      textEl.style.width = startRect.width + 'px';
       textEl.style.whiteSpace = 'nowrap';
       textEl.style.transition = 'none';
+      textEl.style.willChange = 'transform, opacity';
+      textEl.style.left = startRect.left + 'px';
+      textEl.style.top = startRect.top + 'px';
+      textEl.style.transform = 'translate(0, 0) scale(1)';
+      textEl.style.transformOrigin = 'left top';
       document.body.appendChild(textEl);
+
+      // Calculate the transform needed to land exactly on nav text
+      var dx = navTextTarget.left - startRect.left;
+      var dy = navTextTarget.top - startRect.top;
+      var scaleRatio = navTextTarget.height / startRect.height;
 
       var flyStart = 0.3 + FLY_DURATION * 0.45;
       var flyDur   = 1.2;
 
-      // Animate position, size, and font to land exactly on nav text
+      // Single transform tween — GPU composited, no layout thrash, no jitter
       tl.to(textEl, {
-        left: navTextTarget.left,
-        top: navTextTarget.top,
-        width: navTextTarget.width,
-        fontSize: endFontSize,
-        letterSpacing: '0em',
+        transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scaleRatio + ')',
         duration: flyDur,
         ease: 'power3.inOut',
       }, flyStart);
 
-      // At arrival: instant crossfade — splash text vanishes, nav text appears
+      // Crossfade: start fading at 70% of flight so landing is invisible
       tl.to(textEl, {
         opacity: 0,
-        duration: 0.15,
-        ease: 'none',
-        onComplete: function () {
-          if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
-          if (navLogoText) {
-            navLogoText.style.opacity = '1';
-          }
-        },
-      }, flyStart + flyDur - 0.15);
+        duration: flyDur * 0.35,
+        ease: 'power2.in',
+      }, flyStart + flyDur * 0.65);
+
+      // Reveal nav text at the same moment splash text starts fading
+      tl.call(function () {
+        if (navLogoText) navLogoText.style.opacity = '1';
+      }, null, flyStart + flyDur * 0.65);
+
+      // Remove splash text after animation
+      tl.call(function () {
+        if (textEl.parentNode) textEl.parentNode.removeChild(textEl);
+      }, null, flyStart + flyDur + 0.1);
     } else if (textEl) {
-      // Fallback: just fade text out
       tl.to(textEl, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.2);
       if (navLogoText) {
         tl.set(navLogoText, { opacity: 1 }, 0.3 + FLY_DURATION);
