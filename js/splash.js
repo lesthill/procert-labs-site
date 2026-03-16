@@ -339,6 +339,7 @@
       // Fly the clone to the nav
       tl.to(flyText, {
         transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scaleRatio + ')',
+        textShadow: 'none',
         duration: flyDur,
         ease: 'power3.inOut',
       }, flyStart);
