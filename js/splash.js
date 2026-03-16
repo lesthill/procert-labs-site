@@ -339,17 +339,17 @@
         ease: 'power3.inOut',
       }, flyStart);
 
-      // Crossfade: start fading at 85% of flight — text visible almost the whole way
+      // Crossfade: start fading at 70% of flight so landing is invisible
       tl.to(textEl, {
         opacity: 0,
-        duration: flyDur * 0.2,
+        duration: flyDur * 0.35,
         ease: 'power2.in',
-      }, flyStart + flyDur * 0.8);
+      }, flyStart + flyDur * 0.65);
 
-      // Reveal nav text just as splash text fades
+      // Reveal nav text at the same moment splash text starts fading
       tl.call(function () {
         if (navLogoText) navLogoText.style.opacity = '1';
-      }, null, flyStart + flyDur * 0.85);
+      }, null, flyStart + flyDur * 0.65);
 
       // Remove splash text after animation
       tl.call(function () {
