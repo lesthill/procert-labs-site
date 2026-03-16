@@ -302,7 +302,7 @@
     tl.to(flash, { opacity: 0, duration: 0.8, ease: 'power2.out' }, flashT + 0.2);
 
     // 6. Splash fades (including original text — that's fine, we use a clone)
-    tl.to(splashEl, { opacity: 0, duration: 1.0, ease: 'power1.out' }, 0.3 + FLY_DURATION * 0.4);
+    tl.to(splashEl, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0.3 + FLY_DURATION * 0.4);
 
     // 7. TEXT FLIGHT — clone approach so splash fade can't interfere
     if (textEl && navTextTarget) {
@@ -328,8 +328,10 @@
         'will-change:transform,opacity;';
       document.body.appendChild(flyText);
 
-      // Hide the original immediately — the clone replaces it
-      textEl.style.opacity = '0';
+      // Hide ALL splash content immediately — only the clone should be visible
+      textEl.style.display = 'none';
+      if (hintEl) hintEl.style.display = 'none';
+      canvas.style.opacity = '0';
 
       // Calculate flight vector
       var dx = navTextTarget.left - startRect.left;
