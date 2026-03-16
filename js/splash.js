@@ -328,6 +328,9 @@
         'will-change:transform,opacity;';
       document.body.appendChild(flyText);
 
+      // Hide the original immediately — the clone replaces it
+      textEl.style.opacity = '0';
+
       // Calculate flight vector
       var dx = navTextTarget.left - startRect.left;
       var dy = navTextTarget.top - startRect.top;
