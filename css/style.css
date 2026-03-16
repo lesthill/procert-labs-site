@@ -284,12 +284,15 @@ section {
   right: 0;
   z-index: 1000;
   padding: 1.25rem 0;
+  background: rgba(5,5,16,.6);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
   transition: all var(--transition-base);
 }
 
 .navbar.scrolled {
   padding: .65rem 0;
-  background: rgba(5,5,16,.82);
+  background: rgba(5,5,16,.92);
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
   border-bottom: 1px solid var(--border);
