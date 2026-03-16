@@ -340,11 +340,11 @@
       var flyStart = 0.3 + FLY_DURATION * 0.45;
       var flyDur = 1.2;
 
-      // Single transform tween — exact same timing as the version you liked
+      // Flight with a tiny graceful bounce on landing
       tl.to(flyText, {
         transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scaleRatio + ')',
         duration: flyDur,
-        ease: 'power3.inOut',
+        ease: 'back.out(1.4)',
       }, flyStart);
 
       // Crossfade at 65% — same as the good version
