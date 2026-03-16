@@ -337,27 +337,27 @@
       var dy = navTextTarget.top - startRect.top;
       var scaleRatio = navTextTarget.height / startRect.height;
 
-      var flyStart = 0.3 + FLY_DURATION * 0.4;
-      var flyDur = 1.6;
+      var flyStart = 0.3 + FLY_DURATION * 0.45;
+      var flyDur = 1.2;
 
-      // THE FLIGHT — one smooth arc, slow out for a soft landing
+      // Single transform tween — exact same timing as the version you liked
       tl.to(flyText, {
         transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scaleRatio + ')',
         duration: flyDur,
-        ease: 'power2.out',
+        ease: 'power3.inOut',
       }, flyStart);
 
-      // Fade the last 15% — barely noticeable, just blends into the nav text
+      // Crossfade at 65% — same as the good version
       tl.to(flyText, {
         opacity: 0,
-        duration: 0.2,
-        ease: 'none',
-      }, flyStart + flyDur - 0.2);
+        duration: flyDur * 0.35,
+        ease: 'power2.in',
+      }, flyStart + flyDur * 0.65);
 
-      // Nav text appears at the exact same moment
+      // Reveal nav text at the same moment
       tl.call(function () {
         if (navLogoText) navLogoText.style.opacity = '1';
-      }, null, flyStart + flyDur - 0.2);
+      }, null, flyStart + flyDur * 0.65);
 
       // Cleanup
       tl.call(function () {
