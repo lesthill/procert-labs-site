@@ -1680,7 +1680,17 @@ section {
    RESPONSIVE — 768px (nav → hamburger)
    ============================================================ */
 @media (max-width: 768px) {
-  .container { padding: 0 1.25rem; }
+  html, body { overflow-x: hidden; }
+  .container { padding: 0 1.25rem; max-width: 100vw; }
+
+  .programs-section, .marketplace-section, .process-section,
+  .proof-section, .publishers-section, .about-section, .contact-section {
+    padding: 4rem 0;
+  }
+
+  .section-header { margin-bottom: 2rem; }
+  .section-title { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .section-subtitle { font-size: 0.9rem; }
 
   /* Nav goes to hamburger */
   .nav-links {
@@ -1756,12 +1766,15 @@ section {
    RESPONSIVE — 576px
    ============================================================ */
 @media (max-width: 576px) {
-  .container { padding: 0 1rem; }
+  .container { padding: 0 0.85rem; max-width: 100vw; }
 
   .programs-section, .marketplace-section, .process-section,
   .proof-section, .publishers-section, .about-section, .contact-section {
-    padding: 4rem 0;
+    padding: 3rem 0;
   }
+
+  .section-header { margin-bottom: 1.5rem; }
+  .section-title { font-size: clamp(1.4rem, 5vw, 1.8rem); }
 
   .hero-actions {
     flex-direction: column;
