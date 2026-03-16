@@ -310,7 +310,7 @@
       var startRect = textEl.getBoundingClientRect();
       var startStyles = getComputedStyle(textEl);
 
-      // Create a clone, position it identically, add to body
+      // Create clone — no text-shadow (clean from the start, no compositing overhead)
       var flyText = document.createElement('div');
       flyText.textContent = textEl.textContent;
       flyText.style.cssText =
@@ -319,7 +319,6 @@
         'font-size:' + startStyles.fontSize + ';' +
         'font-weight:' + startStyles.fontWeight + ';' +
         'color:#fff;white-space:nowrap;' +
-        'text-shadow:0 0 30px rgba(99,102,241,0.35),0 0 60px rgba(139,92,246,0.15);' +
         'letter-spacing:' + startStyles.letterSpacing + ';' +
         'left:' + startRect.left + 'px;' +
         'top:' + startRect.top + 'px;' +
@@ -328,43 +327,42 @@
         'will-change:transform,opacity;';
       document.body.appendChild(flyText);
 
-      // Hide ALL splash content immediately — only the clone should be visible
+      // Kill all splash content — only the clone exists now
       textEl.style.display = 'none';
       if (hintEl) hintEl.style.display = 'none';
       canvas.style.opacity = '0';
 
-      // Calculate flight vector
+      // Flight math
       var dx = navTextTarget.left - startRect.left;
       var dy = navTextTarget.top - startRect.top;
       var scaleRatio = navTextTarget.height / startRect.height;
 
-      var flyStart = 0.3 + FLY_DURATION * 0.45;
-      var flyDur = 1.2;
+      var flyStart = 0.3 + FLY_DURATION * 0.4;
+      var flyDur = 1.6;
 
-      // Fly the clone to the nav
+      // THE FLIGHT — one smooth arc, slow out for a soft landing
       tl.to(flyText, {
         transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scaleRatio + ')',
-        textShadow: 'none',
         duration: flyDur,
-        ease: 'power3.inOut',
+        ease: 'power2.out',
       }, flyStart);
 
-      // Crossfade near the end
+      // Fade the last 15% — barely noticeable, just blends into the nav text
       tl.to(flyText, {
         opacity: 0,
-        duration: flyDur * 0.25,
-        ease: 'power2.in',
-      }, flyStart + flyDur * 0.75);
+        duration: 0.2,
+        ease: 'none',
+      }, flyStart + flyDur - 0.2);
 
-      // Reveal real nav text
+      // Nav text appears at the exact same moment
       tl.call(function () {
         if (navLogoText) navLogoText.style.opacity = '1';
-      }, null, flyStart + flyDur * 0.75);
+      }, null, flyStart + flyDur - 0.2);
 
-      // Cleanup clone
+      // Cleanup
       tl.call(function () {
         if (flyText.parentNode) flyText.parentNode.removeChild(flyText);
-      }, null, flyStart + flyDur + 0.2);
+      }, null, flyStart + flyDur + 0.1);
     } else {
       // Fallback: just reveal nav text after splash
       if (navLogoText) {
